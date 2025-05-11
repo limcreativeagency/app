@@ -40,7 +40,8 @@ class User extends Authenticatable
         'emergency_contact_name',
         'emergency_contact_phone',
         'profile_photo',
-        'notes'
+        'notes',
+        'hospital_id',
     ];
 
     /**
@@ -67,6 +68,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function hospital()
+    {
+        return $this->belongsTo(Hospital::class);
     }
 
     // Kullanıcının hasta olup olmadığını kontrol eden metod

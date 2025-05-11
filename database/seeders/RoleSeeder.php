@@ -23,7 +23,7 @@ class RoleSeeder extends Seeder
             ],
             [
                 'name' => 'Yönetici',
-                'slug' => 'admin',
+                'slug' => 'clinic_admin',
                 'description' => 'Sistem yöneticisi',
                 'is_active' => true,
             ],
@@ -34,21 +34,15 @@ class RoleSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'name' => 'Hemşire',
-                'slug' => 'nurse',
-                'description' => 'Hasta bakımını sağlayan hemşire',
+                'name' => 'Temsilci',
+                'slug' => 'representative',
+                'description' => 'Hasta bakımı takibi yapan Temsilci',
                 'is_active' => true,
             ],
             [
                 'name' => 'Hasta',
                 'slug' => 'patient',
                 'description' => 'Tedavi gören hasta',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Resepsiyonist',
-                'slug' => 'receptionist',
-                'description' => 'Hasta kayıt ve randevu işlemlerini yöneten resepsiyonist',
                 'is_active' => true,
             ],
         ];

@@ -19,14 +19,18 @@ class SetLocale
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check()) {
-            // Kullanıcı giriş yapmışsa, kullanıcının tercih ettiği dili kullan
+            // Kullanıcı giriş yapmışsa, profilindeki dili kullan
             App::setLocale(Auth::user()->language);
         } else {
-            // Kullanıcı giriş yapmamışsa, session'dan dili al veya varsayılan dili kullan
-            $locale = session('locale', config('app.locale'));
-            App::setLocale($locale);
+            // Session'da dil yoksa, tarayıcı dilini algıla ve session'a kaydet
+            if (!session()->has('locale')) {
+                $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
+                $supported = ['tr', 'en'];
+                $locale = in_array($browserLocale, $supported) ? $browserLocale : config('app.locale');
+                session(['locale' => $locale]);
+            }
+            App::setLocale(session('locale', config('app.locale')));
         }
-
         return $next($request);
     }
 }
