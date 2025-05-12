@@ -9,6 +9,13 @@
                 <div class="fw-bold fs-2 mb-1" style="color:#2563eb; font-family:'Fredoka', 'Nunito', Arial, sans-serif;">{{ __('auth.brand') }}</div>
                 <div class="mb-4" style="color:#4b5563; font-size:1.08rem;">{{ __('auth.subtitle') }}</div>
             </div>
+            @if ($errors->any())
+                <div class="text-danger small mb-2">
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
             <!-- Tab Nav -->
             <ul class="nav nav-tabs mb-4" id="loginTab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -24,14 +31,24 @@
                     <form method="POST" action="{{ route('login') }}" id="phone-login-form">
                         @csrf
                         <div class="mb-3">
-                            <input type="tel" class="form-control" name="phone" id="phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="off" required>
+                            <input type="tel" class="form-control" name="phone_visible" id="phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="off" required>
+                            <input type="hidden" name="phone" id="phone-full">
+                            @if (
+                                $errors->has('phone'))
+                                <span class="text-danger small">{{ $errors->first('phone') }}</span>
+                            @endif
                         </div>
                         <div class="mb-3 position-relative">
                             <input type="password" class="form-control" name="password" id="phone-password" placeholder="{{ __('auth.password_placeholder') }}" required>
                             <span class="toggle-password" toggle="#phone-password" style="position:absolute;top:50%;right:1rem;transform:translateY(-50%);cursor:pointer;"><i class="bi bi-eye-slash"></i></span>
                         </div>
                         <div class="mb-3 text-start">
-                            <a href="{{ route('password.request') }}" class="small" style="color:#2563eb;">{{ __('auth.forgot') }}</a>
+                            {{-- Şifre sıfırlama linki, route yoksa hata vermesin --}}
+                            @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}" class="small" style="color:#2563eb;">{{ __('auth.forgot') }}</a>
+                            @else
+                                <a href="#" class="small disabled" style="color:#b0b6c3; cursor:not-allowed;">{{ __('auth.forgot') }}</a>
+                            @endif
                         </div>
                         <button type="submit" class="btn w-100" style="background:#2563eb; color:#fff; font-weight:700; border-radius:1.5rem; font-size:1.1rem; padding:0.7rem 0;">{{ __('auth.login') }}</button>
                     </form>
@@ -42,13 +59,21 @@
                         @csrf
                         <div class="mb-3">
                             <input type="email" class="form-control" name="email" id="email-input" placeholder="E-posta" required>
+                            @if ($errors->has('email'))
+                                <span class="text-danger small">{{ $errors->first('email') }}</span>
+                            @endif
                         </div>
                         <div class="mb-3 position-relative">
                             <input type="password" class="form-control" name="password" id="email-password" placeholder="{{ __('auth.password_placeholder') }}" required>
                             <span class="toggle-password" toggle="#email-password" style="position:absolute;top:50%;right:1rem;transform:translateY(-50%);cursor:pointer;"><i class="bi bi-eye-slash"></i></span>
                         </div>
                         <div class="mb-3 text-start">
-                            <a href="{{ route('password.request') }}" class="small" style="color:#2563eb;">{{ __('auth.forgot') }}</a>
+                            {{-- Şifre sıfırlama linki, route yoksa hata vermesin --}}
+                            @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}" class="small" style="color:#2563eb;">{{ __('auth.forgot') }}</a>
+                            @else
+                                <a href="#" class="small disabled" style="color:#b0b6c3; cursor:not-allowed;">{{ __('auth.forgot') }}</a>
+                            @endif
                         </div>
                         <button type="submit" class="btn w-100" style="background:#2563eb; color:#fff; font-weight:700; border-radius:1.5rem; font-size:1.1rem; padding:0.7rem 0;">{{ __('auth.login') }}</button>
                     </form>
@@ -137,6 +162,18 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(toggleFormInputs, 100); // Tab geçişinden sonra
         });
         toggleFormInputs(); // İlk yüklemede
+    }
+    var phoneForm = document.getElementById('phone-login-form');
+    var phoneInput = document.getElementById('phone-input');
+    var phoneFull = document.getElementById('phone-full');
+    if(phoneForm && phoneInput && phoneFull && window.intlTelInput) {
+        var iti = window.intlTelInputGlobals.getInstance(phoneInput) || window.intlTelInput(phoneInput);
+        phoneForm.addEventListener('submit', function(e) {
+            if(iti && typeof iti.getNumber === 'function') {
+                phoneFull.value = iti.getNumber();
+            }
+            phoneInput.setAttribute('name', '');
+        });
     }
 });
 </script>

@@ -18,7 +18,9 @@
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Kullanıcılar</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Klinikler</a></li>
                     @elseif(Auth::user()->role_id == 2)
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="#">Yönetici Paneli</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="{{ route('clinic.dashboard') }}">Klinik Paneli</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="{{ route('users.index.doctor') }}">Doktorlar</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="{{ route('users.index.representative') }}">Temsilciler</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Hastalar</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Raporlar</a></li>
                     @else
@@ -39,9 +41,19 @@
                             <i class="bi bi-person-circle me-1"></i> {{ Auth::user()->name }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li>
-                                <a class="dropdown-item" href="{{ route('home') }}">Yönetim Paneli</a>
-                            </li>
+                            @if(Auth::user()->role_id == 1)
+                                <li>
+                                    <a class="dropdown-item" href="{{ url('/admin') }}">Admin Paneli</a>
+                                </li>
+                            @elseif(Auth::user()->role_id == 2)
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('clinic.dashboard') }}">Klinik Paneli</a>
+                                </li>
+                            @else
+                                <li>
+                                    <a class="dropdown-item" href="{{ url('/dashboard') }}">Kullanıcı Paneli</a>
+                                </li>
+                            @endif
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

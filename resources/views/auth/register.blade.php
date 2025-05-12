@@ -22,8 +22,9 @@
                     <input type="email" class="form-control" name="email" placeholder="{{ __('auth.email_placeholder', [], app()->getLocale()) ?? 'E-posta' }}" required>
                 </div>
                 <div class="mb-3">
-                    <input type="tel" class="form-control" name="phone" id="register-phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="off" required>
+                    <input type="tel" class="form-control" name="phone_visible" id="register-phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="off" required>
                 </div>
+                <input type="hidden" name="phone" id="register-phone-full">
                 <div class="mb-3 position-relative">
                     <input type="password" class="form-control" name="password" id="register-password" placeholder="{{ __('auth.password_placeholder') }}" required>
                     <span class="toggle-password" toggle="#register-password" style="position:absolute;top:50%;right:1rem;transform:translateY(-50%);cursor:pointer;"><i class="bi bi-eye-slash"></i></span>
@@ -100,6 +101,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    var registerForm = document.getElementById('register-form');
+    var registerPhoneInput = document.getElementById('register-phone-input');
+    var registerPhoneFull = document.getElementById('register-phone-full');
+    if(registerForm && registerPhoneInput && registerPhoneFull && window.intlTelInput) {
+        var itiReg = window.intlTelInputGlobals.getInstance(registerPhoneInput) || window.intlTelInput(registerPhoneInput);
+        registerForm.addEventListener('submit', function(e) {
+            if(itiReg && typeof itiReg.getNumber === 'function') {
+                registerPhoneFull.value = itiReg.getNumber();
+            }
+            registerPhoneInput.setAttribute('name', '');
+        });
+    }
 });
 </script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">

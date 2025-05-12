@@ -7,6 +7,9 @@ use App\Models\Hospital;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Models\Clinic;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class HospitalRegistrationController extends Controller
 {
@@ -73,43 +76,49 @@ class HospitalRegistrationController extends Controller
     public function step3Submit(Request $request)
     {
         $request->validate([
-            'sms_code' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'required|string|max:20',
+            'country_code' => 'required|string|max:5',
         ]);
-        // Demo SMS kodu kontrolü
-        if ($request->input('sms_code') !== '1234') {
-            return redirect()->back()->withErrors(['sms_code' => 'Geçersiz SMS kodu! (Demo kod: 1234)']);
-        }
-        $clinic = Session::get('clinic_step1');
-        $admin = Session::get('clinic_step2');
 
-        // Son kontrol: email ve telefon unique mi?
-        if (User::where('email', $admin['admin_email'])->exists()) {
-            return redirect()->route('register.step2')->withErrors(['admin_email' => 'Bu e-posta ile zaten bir kullanıcı var.']);
-        }
-        if (User::where('phone', $admin['admin_phone'])->exists()) {
-            return redirect()->route('register.step2')->withErrors(['admin_phone' => 'Bu telefon numarası ile zaten bir kullanıcı var.']);
-        }
+        try {
+            DB::beginTransaction();
 
-        $hospital = Hospital::create([
-            'name' => $clinic['clinic_name'],
-            'phone' => $clinic['phone'],
-            'email' => $clinic['email'],
-            'address' => $clinic['address'] ?? null,
-            'city' => $clinic['city'] ?? null,
-            'country' => $clinic['country'] ?? null,
-            'website' => $clinic['website'] ?? null,
-            'status' => 'trial',
-        ]);
-        $user = User::create([
-            'name' => $admin['admin_name'],
-            'email' => $admin['admin_email'],
-            'phone' => $admin['admin_phone'],
-            'password' => Hash::make($admin['admin_password']),
-            'role_id' => 1, // örnek: superadmin veya admin rolü
-            'hospital_id' => $hospital->id,
-            'is_active' => true,
-        ]);
-        Session::forget(['clinic_step1', 'clinic_step2']);
-        return redirect()->route('login')->with('success', 'Kayıt tamamlandı!');
+            // Create user
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'country_code' => $request->country_code,
+                'role_id' => 2, // Clinic role
+            ]);
+
+            // Create clinic with trial period
+            $trialStartDate = Carbon::now();
+            $trialEndDate = $trialStartDate->copy()->addDays(14);
+
+            $clinic = Clinic::create([
+                'user_id' => $user->id,
+                'name' => $request->name,
+                'trial_start_date' => $trialStartDate,
+                'trial_end_date' => $trialEndDate,
+                // Add other clinic fields here
+            ]);
+
+            DB::commit();
+
+            // Log the user in
+            auth()->login($user);
+
+            return redirect()->route('clinic.dashboard')
+                ->with('success', 'Kayıt başarıyla tamamlandı. 14 günlük deneme süreniz başladı.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Kayıt sırasında bir hata oluştu: ' . $e->getMessage());
+        }
     }
 }

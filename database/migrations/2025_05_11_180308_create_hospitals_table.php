@@ -15,22 +15,26 @@ class CreateHospitalsTable extends Migration
     {
         Schema::create('hospitals', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('clinic_name');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('tax_number')->nullable();
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
+
             $table->date('trial_start_date')->nullable();
             $table->date('trial_end_date')->nullable();
             $table->date('subscription_start_date')->nullable();
             $table->date('subscription_end_date')->nullable();
-            $table->enum('status', ['active', 'passive', 'trial', 'suspended']);
+
+            $table->enum('status', ['trial', 'active', 'expired'])->default('trial');
+
             $table->string('logo')->nullable();
-            $table->string('website')->nullable();
             $table->text('description')->nullable();
+            $table->string('website')->nullable();
             $table->text('notes')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

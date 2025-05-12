@@ -19,9 +19,8 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->foreignId('role_id')->constrained('roles');
-            $table->unsignedBigInteger('hospital_id')->nullable();
-            $table->foreign('hospital_id')->references('id')->on('hospitals')->onDelete('set null');
+            $table->foreignId('role_id')->constrained();
+            $table->foreignId('hospital_id')->nullable()->constrained()->onDelete('set null');
             $table->string('phone')->nullable();
             $table->string('language')->default('tr');
             $table->boolean('is_active')->default(true);

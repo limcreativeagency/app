@@ -48,7 +48,9 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            Role::create($role);
+            if (!Role::where('slug', $role['slug'])->exists()) {
+                Role::create($role);
+            }
         }
     }
 }
