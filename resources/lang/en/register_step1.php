@@ -1,0 +1,20 @@
+<?php
+return [
+    'clinic_info_title' => 'Clinic Information',
+    'clinic_info_subtitle' => 'Enter your clinic information completely and continue.',
+    'clinic_name' => 'Clinic Name',
+    'phone' => 'Phone',
+    'email' => 'Email',
+    'tax_number' => 'Tax Number',
+    'city' => 'City',
+    'country' => 'Country',
+    'website' => 'Website',
+    'address' => 'Address',
+    'description' => 'Description',
+    'notes' => 'Notes',
+    'logo' => 'Logo',
+    'continue' => 'Continue',
+    'step1' => 'Clinic Information',
+    'step2' => 'Manager Information',
+    'step3' => 'SMS Verification',
+]; 

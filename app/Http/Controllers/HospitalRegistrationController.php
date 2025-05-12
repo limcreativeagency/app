@@ -20,7 +20,7 @@ class HospitalRegistrationController extends Controller
     public function step1Submit(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'clinic_name' => 'required|string|max:255',
             'phone' => 'required|string|max:30',
             'email' => 'required|email|max:255',
             'address' => 'nullable|string',
@@ -91,7 +91,7 @@ class HospitalRegistrationController extends Controller
         }
 
         $hospital = Hospital::create([
-            'title' => $clinic['title'],
+            'name' => $clinic['clinic_name'],
             'phone' => $clinic['phone'],
             'email' => $clinic['email'],
             'address' => $clinic['address'] ?? null,

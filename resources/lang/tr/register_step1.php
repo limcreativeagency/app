@@ -1,0 +1,20 @@
+<?php
+return [
+    'clinic_info_title' => 'Klinik Bilgileri',
+    'clinic_info_subtitle' => 'Klinik bilgilerinizi eksiksiz girin ve devam edin.',
+    'clinic_name' => 'Klinik Adı',
+    'phone' => 'Telefon',
+    'email' => 'E-posta',
+    'tax_number' => 'Vergi Numarası',
+    'city' => 'Şehir',
+    'country' => 'Ülke',
+    'website' => 'Web Sitesi',
+    'address' => 'Adres',
+    'description' => 'Açıklama',
+    'notes' => 'Notlar',
+    'logo' => 'Logo',
+    'continue' => 'Devam Et',
+    'step1' => 'Klinik Bilgileri',
+    'step2' => 'Yönetici Bilgileri',
+    'step3' => 'SMS Onayı',
+]; 
