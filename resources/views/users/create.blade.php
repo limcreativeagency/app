@@ -8,6 +8,15 @@
             <form method="POST" action="{{ route('users.store', $role) }}">
                 @csrf
                 <div class="mb-3">
+                    <label class="form-label d-block" for="role_id">Rol</label>
+                    <select name="role_id" id="role_id" class="form-control" required>
+                        <option value="">Rol Seçiniz</option>
+                        <option value="3" {{ old('role_id', isset($role_id) ? $role_id : null) == 3 ? 'selected' : '' }}>Doktor</option>
+                        <option value="4" {{ old('role_id', isset($role_id) ? $role_id : null) == 4 ? 'selected' : '' }}>Temsilci</option>
+                    </select>
+                    @error('role_id')<div class="text-danger small">{{ $message }}</div>@enderror
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Ad Soyad</label>
                     <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                     @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
@@ -18,7 +27,7 @@
                     @error('email')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Telefon</label>
+                    <label class="form-label d-block" for="phone-input">Telefon</label>
                     <input type="tel" name="phone_visible" id="phone-input" class="form-control" value="{{ old('phone') }}" required autocomplete="off">
                     <input type="hidden" name="phone" id="phone-full">
                     @error('phone')<div class="text-danger small">{{ $message }}</div>@enderror
