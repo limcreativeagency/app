@@ -18,11 +18,11 @@
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Kullanıcılar</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Klinikler</a></li>
                     @elseif(Auth::user()->role_id == 2)
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="{{ route('clinic.dashboard') }}">Klinik Paneli</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="{{ route('users.index.doctor') }}">Doktorlar</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="{{ route('users.index.representative') }}">Temsilciler</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Hastalar</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Raporlar</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('clinic.dashboard') ? 'active' : '' }}" href="{{ route('clinic.dashboard') }}">{{ __('clinic.dashboard_title') }}</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.doctor') ? 'active' : '' }}" href="{{ route('users.index.doctor') }}">{{ __('clinic.menu_doctors') }}</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.representative') ? 'active' : '' }}" href="{{ route('users.index.representative') }}">{{ __('clinic.menu_representatives') }}</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('patients.index') ? 'active' : '' }}" href="{{ route('patients.index') }}">{{ __('clinic.menu_patients') }}</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">{{ __('clinic.menu_reports') }}</a></li>
                     @else
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="#">Panel</a></li>
                     @endif
@@ -47,7 +47,7 @@
                                 </li>
                             @elseif(Auth::user()->role_id == 2)
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('clinic.dashboard') }}">Klinik Paneli</a>
+                                    <a class="dropdown-item" href="{{ route('clinic.dashboard') }}">{{ __('clinic.dashboard_title') }}</a>
                                 </li>
                             @else
                                 <li>
@@ -67,6 +67,27 @@
                     <a href="{{ route('login') }}" class="btn btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center modern-btn" style="font-size:1rem;"><i class="bi bi-box-arrow-in-right me-1"></i>{{ __('auth.login') }}</a>
                     <a href="{{ route('register.step1') }}" class="btn btn-success rounded-pill px-3 py-1 fw-semibold d-flex align-items-center modern-btn" style="font-size:1rem;"><i class="bi bi-person-plus me-1"></i>{{ __('auth.start_free') }}</a>
                 @endguest
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary rounded-pill px-3 py-1 fw-semibold dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ (app()->getLocale() == "tr") ? "TR" : "EN" }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                        <li>
+                            <form method="POST" action="{{ route('setlocale') }}" style="display: inline;">
+                                @csrf
+                                <input type="hidden" name="locale" value="tr">
+                                <button type="submit" class="dropdown-item">TR</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ route('setlocale') }}" style="display: inline;">
+                                @csrf
+                                <input type="hidden" name="locale" value="en">
+                                <button type="submit" class="dropdown-item">EN</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

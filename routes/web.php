@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HospitalRegistrationController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\PatientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +41,10 @@ Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLog
 Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
-Route::get('/clinic/dashboard', [App\Http\Controllers\ClinicController::class, 'dashboard'])->name('clinic.dashboard');
+Route::get('/clinic/dashboard', [App\Http\Controllers\ClinicController::class, 'dashboard'])->middleware('auth')->name('clinic.dashboard');
+
+Route::get('/clinic/hospital/edit', [App\Http\Controllers\ClinicController::class, 'editHospital'])->middleware('auth')->name('clinic.hospital.edit');
+Route::put('/clinic/hospital/update', [App\Http\Controllers\ClinicController::class, 'updateHospital'])->middleware('auth')->name('clinic.hospital.update');
 
 Route::prefix('users')->middleware('auth')->group(function () {
     Route::get('/doctors', [App\Http\Controllers\DoctorRepresentativeController::class, 'index'])->defaults('role', 'doctor')->name('users.index.doctor');
@@ -49,4 +54,19 @@ Route::prefix('users')->middleware('auth')->group(function () {
     Route::get('/{role}/{user}/edit', [App\Http\Controllers\DoctorRepresentativeController::class, 'edit'])->name('users.edit');
     Route::put('/{role}/{user}', [App\Http\Controllers\DoctorRepresentativeController::class, 'update'])->name('users.update');
     Route::delete('/{role}/{user}', [App\Http\Controllers\DoctorRepresentativeController::class, 'destroy'])->name('users.destroy');
+});
+
+Route::post('/setlocale', function (Request $request) {
+    $locale = $request->input('locale');
+    if (in_array($locale, ['tr', 'en'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('setlocale');
+
+Route::middleware(['auth'])->group(function () {
+    // Patient Routes
+    Route::resource('patients', PatientController::class);
+    Route::get('patients/{userId}/verify', [PatientController::class, 'showVerification'])->name('patients.verify');
+    Route::post('patients/{userId}/verify', [PatientController::class, 'verify'])->name('patients.verify.submit');
 });

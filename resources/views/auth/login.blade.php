@@ -31,7 +31,7 @@
                     <form method="POST" action="{{ route('login') }}" id="phone-login-form">
                         @csrf
                         <div class="mb-3">
-                            <input type="tel" class="form-control" name="phone_visible" id="phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="off" required>
+                            <input type="tel" class="form-control" name="phone_visible" id="phone-input" placeholder="{{ __('auth.phone_placeholder') }}" autocomplete="new-password" required>
                             <input type="hidden" name="phone" id="phone-full">
                             @if (
                                 $errors->has('phone'))
@@ -58,7 +58,7 @@
                     <form method="POST" action="{{ route('login') }}" id="email-login-form">
                         @csrf
                         <div class="mb-3">
-                            <input type="email" class="form-control" name="email" id="email-input" placeholder="E-posta" required>
+                            <input type="email" class="form-control" name="email" id="email-input" placeholder="E-posta" autocomplete="new-password" required>
                             @if ($errors->has('email'))
                                 <span class="text-danger small">{{ $errors->first('email') }}</span>
                             @endif
@@ -101,6 +101,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     var phoneInput = document.getElementById('phone-input');
     if(phoneInput && window.intlTelInput) {
+        // Prevent browser autofill
+        phoneInput.setAttribute('autocomplete', 'new-password');
+        phoneInput.setAttribute('readonly', 'readonly');
+        setTimeout(function() {
+            phoneInput.removeAttribute('readonly');
+        }, 100);
+
         var iti = window.intlTelInput(phoneInput, {
             initialCountry: 'tr',
             nationalMode: true,
@@ -108,7 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
             utilsScript: '{{ asset('intl-tel-input/js/utils.js') }}',
             placeholderNumberType: 'MOBILE',
             autoHideDialCode: false,
-            separateDialCode: true
+            separateDialCode: true,
+            autoPlaceholder: 'aggressive'
         });
         // Cleave.js ile maske
         var cleaveTR = null;
@@ -149,10 +157,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab çakışma önleme: Sadece aktif tabdaki form enable, diğeri disable
     function toggleFormInputs() {
         var phoneTabActive = document.getElementById('phone').classList.contains('show') && document.getElementById('phone').classList.contains('active');
-        document.querySelectorAll('#phone-login-form input').forEach(function(input) {
+        
+        // Telefon formu için özel işlem
+        var phoneFormInputs = document.querySelectorAll('#phone-login-form input:not([id="phone-input"])');
+        phoneFormInputs.forEach(function(input) {
             input.disabled = !phoneTabActive;
         });
-        document.querySelectorAll('#email-login-form input').forEach(function(input) {
+        
+        // Telefon input'u için özel işlem
+        var phoneInput = document.getElementById('phone-input');
+        if (phoneInput) {
+            if (!phoneTabActive) {
+                phoneInput.value = '';
+                if (window.intlTelInputGlobals) {
+                    var iti = window.intlTelInputGlobals.getInstance(phoneInput);
+                    if (iti) {
+                        iti.destroy();
+                        setTimeout(function() {
+                            window.intlTelInput(phoneInput, {
+                                initialCountry: 'tr',
+                                nationalMode: true,
+                                formatOnDisplay: true,
+                                utilsScript: '{{ asset('intl-tel-input/js/utils.js') }}',
+                                placeholderNumberType: 'MOBILE',
+                                autoHideDialCode: false,
+                                separateDialCode: true,
+                                autoPlaceholder: 'aggressive'
+                            });
+                        }, 100);
+                    }
+                }
+            }
+        }
+
+        // Email formu için işlem
+        var emailFormInputs = document.querySelectorAll('#email-login-form input');
+        emailFormInputs.forEach(function(input) {
             input.disabled = phoneTabActive;
         });
     }

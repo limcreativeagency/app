@@ -45,10 +45,10 @@ class DoctorRepresentativeController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
         $validated['password'] = \Hash::make($validated['password']);
-        $validated['role_id'] = $roleId;
         $validated['hospital_id'] = $user->hospital_id;
+        $validated['role_id'] = $roleId;
         User::create($validated);
-        return redirect()->route('users.index', $role)->with('success', ucfirst($role).' başarıyla eklendi.');
+        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' başarıyla eklendi.');
     }
 
     public function edit($role, User $user)
@@ -72,14 +72,14 @@ class DoctorRepresentativeController extends Controller
             unset($validated['password']);
         }
         $user->update($validated);
-        return redirect()->route('users.index', $role)->with('success', ucfirst($role).' güncellendi.');
+        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' güncellendi.');
     }
 
     public function destroy($role, User $user)
     {
         $this->authorizeUser($user);
         $user->delete();
-        return redirect()->route('users.index', $role)->with('success', ucfirst($role).' silindi.');
+        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' silindi.');
     }
 
     private function authorizeUser(User $user)

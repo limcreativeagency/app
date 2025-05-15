@@ -2,48 +2,49 @@
 
 @section('content')
 <div class="container py-4">
-    <h2>Yeni {{ ucfirst($role) }} Ekle</h2>
+    <h2>{{ __('users.create_title', ['role' => ucfirst($role)]) }}</h2>
     <div class="card">
         <div class="card-body">
             <form method="POST" action="{{ route('users.store', $role) }}">
                 @csrf
-                <div class="mb-3">
-                    <label class="form-label d-block" for="role_id">Rol</label>
-                    <select name="role_id" id="role_id" class="form-control" required>
-                        <option value="">Rol Seçiniz</option>
-                        <option value="3" {{ old('role_id', isset($role_id) ? $role_id : null) == 3 ? 'selected' : '' }}>Doktor</option>
-                        <option value="4" {{ old('role_id', isset($role_id) ? $role_id : null) == 4 ? 'selected' : '' }}>Temsilci</option>
-                    </select>
-                    @error('role_id')<div class="text-danger small">{{ $message }}</div>@enderror
+                
+                @if ($role === 'doctor')
+                    <input type="hidden" name="role_id" value="3">
+                @elseif ($role === 'representative')
+                    <input type="hidden" name="role_id" value="4">
+                @endif
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="name">{{ __('users.name') }}</label>
+                        <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}" required>
+                        @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="email">{{ __('users.email') }}</label>
+                        <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
+                        @error('email')<div class="text-danger small">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label d-block" for="phone-input">{{ __('users.phone') }}</label>
+                        <input type="tel" name="phone_visible" id="phone-input" class="form-control" value="{{ old('phone') }}" required autocomplete="off">
+                        <input type="hidden" name="phone" id="phone-full">
+                        @error('phone')<div class="text-danger small">{{ $message }}</div>@enderror
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Ad Soyad</label>
-                    <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
-                    @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">E-posta</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-                    @error('email')<div class="text-danger small">{{ $message }}</div>@enderror
-                </div>
-                <div class="mb-3">
-                    <label class="form-label d-block" for="phone-input">Telefon</label>
-                    <input type="tel" name="phone_visible" id="phone-input" class="form-control" value="{{ old('phone') }}" required autocomplete="off">
-                    <input type="hidden" name="phone" id="phone-full">
-                    @error('phone')<div class="text-danger small">{{ $message }}</div>@enderror
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Şifre</label>
+                    <label class="form-label">{{ __('users.password') }}</label>
                     <input type="password" name="password" class="form-control" required>
                     @error('password')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Şifre Tekrar</label>
+                    <label class="form-label">{{ __('users.password_confirm') }}</label>
                     <input type="password" name="password_confirmation" class="form-control" required>
                 </div>
-                <input type="hidden" name="role" value="{{ $role }}">
-                <button type="submit" class="btn btn-success">Kaydet</button>
-                <a href="{{ route('users.index.' . $role) }}" class="btn btn-secondary">İptal</a>
+                <button type="submit" class="btn btn-success">{{ __('general.save') }}</button>
+                <a href="{{ route('users.index.' . $role) }}" class="btn btn-secondary">{{ __('general.cancel') }}</a>
             </form>
         </div>
     </div>
@@ -88,14 +89,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+        function fixPlaceholder() {
+            if (iti && iti.getSelectedCountryData().iso2 === 'tr') {
+                let ph = phoneInput.getAttribute('placeholder');
+                if (ph && ph.startsWith('0')) {
+                    phoneInput.setAttribute('placeholder', ph.replace(/^0/, ''));
+                }
+            }
+        }
         updateMask();
-        phoneInput.addEventListener('countrychange', updateMask);
+        fixPlaceholder();
+        phoneInput.addEventListener('countrychange', function() {
+            updateMask();
+            fixPlaceholder();
+        });
     }
     if(form && phoneInput && phoneFull && window.intlTelInput) {
         var iti = window.intlTelInputGlobals.getInstance(phoneInput) || window.intlTelInput(phoneInput);
         form.addEventListener('submit', function(e) {
             if(iti && typeof iti.getNumber === 'function') {
-                phoneFull.value = iti.getNumber();
+                let fullNumber = iti.getNumber();
+                if (iti.getSelectedCountryData().iso2 === 'tr') {
+                    fullNumber = fullNumber.replace(/^\+90\s?0/, '+90 ');
+                }
+                phoneFull.value = fullNumber;
             }
             phoneInput.setAttribute('name', '');
         });
@@ -107,4 +124,14 @@ document.addEventListener('DOMContentLoaded', function() {
 @push('styles')
 <link rel="stylesheet" href="{{ asset('intl-tel-input/css/intlTelInput.min.css') }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+.intl-tel-input, .intl-tel-input .form-control, .intl-tel-input input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+.iti {
+    width: 100% !important;
+}
+</style>
 @endpush 

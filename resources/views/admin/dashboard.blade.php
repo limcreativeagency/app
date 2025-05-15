@@ -2,7 +2,7 @@
 @section('content')
 <div class="container py-5">
     <div class="text-center">
-        <h1>Admin Paneline Hoşgeldiniz</h1>
+        <h1>{{ __('admin.dashboard_title') }}</h1>
     </div>
 </div>
 @endsection 

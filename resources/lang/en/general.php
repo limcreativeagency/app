@@ -24,6 +24,7 @@ return [
         'status' => 'Status',
         'active' => 'Active',
         'passive' => 'Passive',
+        'update' => 'Update',
     ],
 
     // User
@@ -66,5 +67,8 @@ return [
         'nurse' => 'Nurse',
         'patient' => 'Patient',
         'receptionist' => 'Receptionist',
+        'representative' => 'Representative',
     ],
+
+    'back' => 'Back',
 ]; 

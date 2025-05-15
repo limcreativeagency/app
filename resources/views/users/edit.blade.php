@@ -2,40 +2,40 @@
 
 @section('content')
 <div class="container py-4">
-    <h2>{{ ucfirst($role) }} Düzenle</h2>
+    <h2>{{ __('users.edit_title', ['role' => ucfirst($role)]) }}</h2>
     <div class="card">
         <div class="card-body">
             <form method="POST" action="{{ route('users.update', [$role, $user->id]) }}">
                 @csrf
                 @method('PUT')
                 <div class="mb-3">
-                    <label class="form-label">Ad Soyad</label>
+                    <label class="form-label" for="name">{{ __('users.name') }}</label>
                     <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
                     @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">E-posta</label>
+                    <label class="form-label" for="email">{{ __('users.email') }}</label>
                     <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
                     @error('email')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Telefon</label>
+                    <label class="form-label d-block" for="phone-input">{{ __('users.phone') }}</label>
                     <input type="tel" name="phone_visible" id="phone-input" class="form-control" value="{{ old('phone', $user->phone) }}" required autocomplete="off">
                     <input type="hidden" name="phone" id="phone-full" value="{{ old('phone', $user->phone) }}">
                     @error('phone')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Şifre (değiştirmek istemiyorsanız boş bırakın)</label>
+                    <label class="form-label">{{ __('users.password_optional') }}</label>
                     <input type="password" name="password" class="form-control">
                     @error('password')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Şifre Tekrar</label>
+                    <label class="form-label">{{ __('users.password_confirm') }}</label>
                     <input type="password" name="password_confirmation" class="form-control">
                 </div>
                 <input type="hidden" name="role" value="{{ $role }}">
-                <button type="submit" class="btn btn-success">Güncelle</button>
-                <a href="{{ route('users.index.' . $role) }}" class="btn btn-secondary">İptal</a>
+                <button type="submit" class="btn btn-success">{{ __('general.update') }}</button>
+                <a href="{{ route('users.index.' . $role) }}" class="btn btn-secondary">{{ __('general.cancel') }}</a>
             </form>
         </div>
     </div>

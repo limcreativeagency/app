@@ -67,5 +67,10 @@ return [
         'nurse' => 'Hemşire',
         'patient' => 'Hasta',
         'receptionist' => 'Resepsiyonist',
+        'representative' => 'Temsilci',
     ],
+
+    'update' => 'Güncelle',
+
+    'back' => 'Geri Dön',
 ]; 
