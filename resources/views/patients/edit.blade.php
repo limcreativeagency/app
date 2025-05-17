@@ -129,23 +129,10 @@
                             <!-- Kişisel Bilgiler -->
                             <div class="tab-pane fade show active" id="personal" role="tabpanel">
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <label for="name" class="form-label">{{ __('patients.name') }} <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $patient->user->name) }}" required>
                                         @error('name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="language" class="form-label">{{ __('patients.language') }}</label>
-                                        <select class="form-select @error('language') is-invalid @enderror" id="language" name="language">
-                                            <option value="">{{ __('general.select') }}</option>
-                                            <option value="tr" {{ old('language', $patient->language) == 'tr' ? 'selected' : '' }}>Türkçe</option>
-                                            <option value="en" {{ old('language', $patient->language) == 'en' ? 'selected' : '' }}>English</option>
-                                            <option value="ar" {{ old('language', $patient->language) == 'ar' ? 'selected' : '' }}>العربية</option>
-                                            <option value="de" {{ old('language', $patient->language) == 'de' ? 'selected' : '' }}>Deutsch</option>
-                                        </select>
-                                        @error('language')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -435,9 +422,6 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>

@@ -384,30 +384,39 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Bootstrap tabs
-        var triggerTabList = [].slice.call(document.querySelectorAll('#patientTabs button'))
-        triggerTabList.forEach(function (triggerEl) {
-            var tabTrigger = new bootstrap.Tab(triggerEl)
-            triggerEl.addEventListener('click', function (event) {
-                event.preventDefault()
-                tabTrigger.show()
-            })
+        var triggerTabList = [].slice.call(document.querySelectorAll('#patientTabs button'));
+        triggerTabList.forEach(function(triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
         });
 
-        // Restore active tab from localStorage if exists
-        var activeTab = localStorage.getItem('activePatientTab');
-        if (activeTab) {
-            var tab = new bootstrap.Tab(document.querySelector(activeTab));
-            tab.show();
+        // Get the hash value from the URL
+        var hash = window.location.hash;
+        if (hash) {
+            // If there's a hash, activate the corresponding tab
+            var activeTab = document.querySelector('#patientTabs button[data-bs-target="' + hash + '"]');
+            if (activeTab) {
+                var tab = new bootstrap.Tab(activeTab);
+                tab.show();
+            }
         }
 
-        // Store the active tab in localStorage when changed
-        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(el) {
-            el.addEventListener('shown.bs.tab', function (event) {
-                localStorage.setItem('activePatientTab', '#' + event.target.id);
+        // Update URL hash when tab changes
+        var tabs = document.querySelectorAll('#patientTabs button');
+        tabs.forEach(function(tab) {
+            tab.addEventListener('shown.bs.tab', function(event) {
+                var targetId = event.target.getAttribute('data-bs-target');
+                if (history.pushState) {
+                    history.pushState(null, null, targetId);
+                } else {
+                    window.location.hash = targetId;
+                }
             });
         });
     });

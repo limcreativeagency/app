@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\EmergencyContactController;
+use App\Http\Controllers\TreatmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,4 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('patients/{userId}/verify', [PatientController::class, 'showVerification'])->name('patients.verify');
     Route::post('patients/{userId}/verify', [PatientController::class, 'verify'])->name('patients.verify.submit');
     Route::delete('emergency-contacts/{emergencyContact}', [EmergencyContactController::class, 'destroy'])->name('emergency-contacts.destroy');
+    
+    // Treatment Routes
+    Route::resource('treatments', TreatmentController::class);
 });
