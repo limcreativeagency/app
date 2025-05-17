@@ -11,22 +11,39 @@ return [
         'register' => 'Kayıt Ol',
     ],
 
-    // Genel
-    'general' => [
-        'save' => 'Kaydet',
-        'cancel' => 'İptal',
-        'edit' => 'Düzenle',
-        'delete' => 'Sil',
-        'create' => 'Oluştur',
-        'search' => 'Ara',
-        'filter' => 'Filtrele',
-        'actions' => 'İşlemler',
-        'status' => 'Durum',
-        'active' => 'Aktif',
-        'passive' => 'Pasif',
-    ],
+    // Actions
+    'actions' => 'İşlemler',
+    'save' => 'Kaydet',
+    'cancel' => 'İptal',
+    'edit' => 'Düzenle',
+    'delete' => 'Sil',
+    'create' => 'Oluştur',
+    'search' => 'Ara',
+    'filter' => 'Filtrele',
+    'status' => 'Durum',
+    'active' => 'Aktif',
+    'passive' => 'Pasif',
+    'update' => 'Güncelle',
+    'back' => 'Geri',
+    'select' => 'Seç',
+    'clear' => 'Temizle',
+    'show' => 'Göster',
+    'hide' => 'Gizle',
+    'add' => 'Ekle',
+    'remove' => 'Kaldır',
+    'confirm' => 'Onayla',
+    'yes' => 'Evet',
+    'no' => 'Hayır',
+    'close' => 'Kapat',
+    'submit' => 'Gönder',
+    'reset' => 'Sıfırla',
+    'download' => 'İndir',
+    'upload' => 'Yükle',
+    'print' => 'Yazdır',
+    'export' => 'Dışa Aktar',
+    'import' => 'İçe Aktar',
 
-    // Kullanıcı
+    // User
     'user' => [
         'name' => 'Ad Soyad',
         'email' => 'E-posta',
@@ -52,14 +69,14 @@ return [
         'notes' => 'Notlar',
     ],
 
-    // Cinsiyet
+    // Gender
     'gender' => [
         'male' => 'Erkek',
         'female' => 'Kadın',
         'other' => 'Diğer',
     ],
 
-    // Roller
+    // Roles
     'roles' => [
         'super_admin' => 'Süper Yönetici',
         'admin' => 'Yönetici',
@@ -69,44 +86,8 @@ return [
         'receptionist' => 'Resepsiyonist',
         'representative' => 'Temsilci',
     ],
-
-    'update' => 'Güncelle',
-
-    'back' => 'Geri Dön',
-
-    'select' => 'Seç',
-
-    // Actions
-    'edit' => 'Düzenle',
-    'delete' => 'Sil',
-    'save' => 'Kaydet',
-    'cancel' => 'İptal',
-    'back' => 'Geri',
-    'create' => 'Oluştur',
-    'update' => 'Güncelle',
-    'search' => 'Ara',
-    'filter' => 'Filtrele',
-    'clear' => 'Temizle',
-    'show' => 'Göster',
-    'hide' => 'Gizle',
-    'add' => 'Ekle',
-    'remove' => 'Kaldır',
-    'confirm' => 'Onayla',
-    'yes' => 'Evet',
-    'no' => 'Hayır',
-    'close' => 'Kapat',
-    'submit' => 'Gönder',
-    'reset' => 'Sıfırla',
-    'download' => 'İndir',
-    'upload' => 'Yükle',
-    'print' => 'Yazdır',
-    'export' => 'Dışa Aktar',
-    'import' => 'İçe Aktar',
     
     // Status
-    'status' => 'Durum',
-    'active' => 'Aktif',
-    'inactive' => 'Pasif',
     'enabled' => 'Etkin',
     'disabled' => 'Devre Dışı',
     'pending' => 'Beklemede',
@@ -119,7 +100,6 @@ return [
     'info' => 'Bilgi',
     
     // Gender
-    'gender' => 'Cinsiyet',
     'gender.male' => 'Erkek',
     'gender.female' => 'Kadın',
     'gender.other' => 'Diğer',
@@ -173,4 +153,6 @@ return [
     'date_format' => 'd.m.Y',
     'time_format' => 'H:i',
     'datetime_format' => 'd.m.Y H:i',
+    'emergency_contact_deleted' => 'Acil durum kişisi başarıyla silindi.',
+    'emergency_contact_delete_error' => 'Acil durum kişisi silinirken bir hata oluştu.',
 ]; 

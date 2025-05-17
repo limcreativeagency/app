@@ -64,14 +64,6 @@ Route::prefix('users')->middleware('auth')->group(function () {
     Route::delete('/{role}/{user}', [App\Http\Controllers\DoctorRepresentativeController::class, 'destroy'])->name('users.destroy');
 });
 
-Route::post('/setlocale', function (Request $request) {
-    $locale = $request->input('locale');
-    if (in_array($locale, ['tr', 'en'])) {
-        session(['locale' => $locale]);
-    }
-    return redirect()->back();
-})->name('setlocale');
-
 Route::middleware(['auth'])->group(function () {
     // Patient Routes
     Route::resource('patients', PatientController::class);

@@ -15,11 +15,6 @@ class LanguageController extends Controller
         if (in_array($lang, $supportedLocales)) {
             // Session'a dili kaydet
             session()->put('locale', $lang);
-            
-            // Kullanıcı giriş yapmışsa, veritabanında da güncelle
-            if (Auth::check()) {
-                Auth::user()->update(['language' => $lang]);
-            }
         }
         
         return redirect()->back();

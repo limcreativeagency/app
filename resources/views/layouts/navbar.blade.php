@@ -73,18 +73,14 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
                         <li>
-                            <form method="POST" action="{{ route('setlocale') }}" style="display: inline;">
-                                @csrf
-                                <input type="hidden" name="locale" value="tr">
-                                <button type="submit" class="dropdown-item">TR</button>
-                            </form>
+                            <a href="{{ route('language.switch', 'tr') }}" class="dropdown-item {{ app()->getLocale() == 'tr' ? 'active' : '' }}">
+                                TR
+                            </a>
                         </li>
                         <li>
-                            <form method="POST" action="{{ route('setlocale') }}" style="display: inline;">
-                                @csrf
-                                <input type="hidden" name="locale" value="en">
-                                <button type="submit" class="dropdown-item">EN</button>
-                            </form>
+                            <a href="{{ route('language.switch', 'en') }}" class="dropdown-item {{ app()->getLocale() == 'en' ? 'active' : '' }}">
+                                EN
+                            </a>
                         </li>
                     </ul>
                 </div>

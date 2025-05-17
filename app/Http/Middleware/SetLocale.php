@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 class SetLocale
 {
@@ -17,20 +18,19 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next)
     {
-        // Eğer kullanıcı (session) tarafından özel bir dil seçilmişse, onu kullan.
-        if (session()->has('locale')) {
-            App::setLocale(session('locale'));
-        } else {
-            // Tarayıcı dilini (Accept-Language header) al, örneğin "tr" veya "en" gibi.
-            $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
-            // Desteklenen dilleri kontrol et (örneğin "tr" veya "en")
-            if (in_array($browserLocale, ['tr', 'en'])) {
-                App::setLocale($browserLocale);
-            } else {
-                // Desteklenmeyen bir dil ise, varsayılan (örneğin "tr") kullan.
-                App::setLocale(config('app.locale'));
-            }
+        $locale = session('locale', config('app.locale'));
+        
+        // Desteklenen dilleri kontrol et
+        if (!in_array($locale, ['tr', 'en'])) {
+            $locale = config('app.locale', 'tr');
         }
+        
+        // Dili ayarla
+        App::setLocale($locale);
+        
+        // Debug için log
+        Log::debug('Current locale: ' . App::getLocale());
+        
         return $next($request);
     }
 }

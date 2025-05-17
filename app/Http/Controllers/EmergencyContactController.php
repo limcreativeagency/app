@@ -11,9 +11,9 @@ class EmergencyContactController extends Controller
     {
         try {
             $emergencyContact->delete();
-            return back()->with('success', 'Acil durum kişisi başarıyla silindi.');
+            return back()->with('success', __('general.emergency_contact_deleted'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Acil durum kişisi silinirken bir hata oluştu.');
+            return back()->with('error', __('general.emergency_contact_delete_error'));
         }
     }
 } 

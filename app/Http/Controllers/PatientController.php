@@ -69,9 +69,9 @@ class PatientController extends Controller
                 'chronic_diseases' => 'nullable',
                 'medications_used' => 'nullable',
                 'emergency_contacts' => 'nullable|array',
-                'emergency_contacts.*.name' => 'required_with:emergency_contacts|string|max:255',
-                'emergency_contacts.*.phone' => 'required_with:emergency_contacts|string|max:20',
-                'emergency_contacts.*.relation' => 'required_with:emergency_contacts|string|max:50'
+                'emergency_contacts.*.name' => 'nullable|string|max:255',
+                'emergency_contacts.*.phone' => 'nullable|string|max:20',
+                'emergency_contacts.*.relation' => 'nullable|string|max:50'
             ]);
 
             \Log::info('Validasyon başarılı');
@@ -203,9 +203,9 @@ class PatientController extends Controller
             'chronic_diseases' => 'nullable',
             'medications_used' => 'nullable',
             'emergency_contacts' => 'nullable|array',
-            'emergency_contacts.*.name' => 'required_with:emergency_contacts|string|max:255',
-            'emergency_contacts.*.phone' => 'required_with:emergency_contacts|string|max:20',
-            'emergency_contacts.*.relation' => 'required_with:emergency_contacts|string|max:50'
+            'emergency_contacts.*.name' => 'nullable|string|max:255',
+            'emergency_contacts.*.phone' => 'nullable|string|max:20',
+            'emergency_contacts.*.relation' => 'nullable|string|max:50'
         ]);
 
         DB::beginTransaction();
@@ -436,9 +436,9 @@ class PatientController extends Controller
             'chronic_diseases' => 'nullable',
             'medications_used' => 'nullable',
             'emergency_contacts' => 'nullable|array',
-            'emergency_contacts.*.name' => 'required_with:emergency_contacts|string|max:255',
-            'emergency_contacts.*.phone' => 'required_with:emergency_contacts|string|max:20',
-            'emergency_contacts.*.relation' => 'required_with:emergency_contacts|string|max:50'
+            'emergency_contacts.*.name' => 'nullable|string|max:255',
+            'emergency_contacts.*.phone' => 'nullable|string|max:20',
+            'emergency_contacts.*.relation' => 'nullable|string|max:50'
         ];
     }
 } 
