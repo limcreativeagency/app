@@ -8,9 +8,10 @@
             <form method="POST" action="{{ route('clinic.hospital.update') }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <div class="mb-3">
-                    <label class="form-label">{{ __('clinic.hospital_name') }}</label>
-                    <input type="text" name="clinic_name" class="form-control" value="{{ old('clinic_name', $hospital->clinic_name ?? $hospital->title) }}" required>
+                <div class="form-group">
+                    <label for="clinic_name">{{ __('clinic.clinic_name') }}</label>
+                    <input type="text" class="form-control" id="clinic_name" name="clinic_name" value="{{ old('clinic_name', $hospital->clinic_name) }}" required>
+                    @error('clinic_name')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
                     <label class="form-label">{{ __('clinic.hospital_tax_number') }}</label>

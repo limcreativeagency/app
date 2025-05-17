@@ -22,22 +22,18 @@ class HospitalRegistrationController extends Controller
     // 1. Klinik bilgi formu submit
     public function step1Submit(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'clinic_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:30',
-            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|unique:hospitals,email',
+            'tax_number' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
-            'website' => 'nullable|string|max:255',
+            'website' => 'nullable|url|max:255',
         ]);
-        // Telefonu normalize et
-        $validated['phone'] = preg_replace('/\D+/', '', $validated['phone']);
-        if (strpos($validated['phone'], '90') !== 0) {
-            $validated['phone'] = '90' . $validated['phone'];
-        }
-        $validated['phone'] = '+' . $validated['phone'];
-        Session::put('clinic_step1', $validated);
+
+        session(['clinic_step1' => $request->all()]);
         return redirect()->route('register.step2');
     }
 
@@ -56,13 +52,18 @@ class HospitalRegistrationController extends Controller
             'admin_phone' => 'required|string|max:30|unique:users,phone',
             'admin_password' => 'required|string|min:6|confirmed',
         ]);
-        // Telefonu normalize et
-        $validated['admin_phone'] = preg_replace('/\D+/', '', $validated['admin_phone']);
-        if (strpos($validated['admin_phone'], '90') !== 0) {
-            $validated['admin_phone'] = '90' . $validated['admin_phone'];
+
+        // Handle phone number formatting
+        $phone = preg_replace('/\D+/', '', $request->admin_phone_visible);
+        $countryCode = $request->admin_phone_country ?: '90'; // Default to Turkey if not specified
+        if (strpos($phone, $countryCode) !== 0) {
+            $phone = $countryCode . $phone;
         }
-        $validated['admin_phone'] = '+' . $validated['admin_phone'];
+        $validated['admin_phone'] = '+' . $phone;
+
+        // Store all validated data in session
         Session::put('clinic_step2', $validated);
+        
         return redirect()->route('register.step3');
     }
 
@@ -76,49 +77,124 @@ class HospitalRegistrationController extends Controller
     public function step3Submit(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string|max:20',
-            'country_code' => 'required|string|max:5',
+            'verification_code' => 'required|string|size:4',
         ]);
+
+        // Get data from previous steps
+        $step1Data = Session::get('clinic_step1');
+        $step2Data = Session::get('clinic_step2');
+
+        if (!$step1Data || !$step2Data) {
+            return redirect()->route('register.step1')
+                ->with('error', 'Kayıt oturumu süresi doldu. Lütfen baştan başlayın.');
+        }
+
+        // Demo için sabit kod kontrolü (1234)
+        if ($request->verification_code !== '1234') {
+            return back()->with('error', 'Geçersiz doğrulama kodu.');
+        }
 
         try {
             DB::beginTransaction();
 
-            // Create user
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'phone' => $request->phone,
-                'country_code' => $request->country_code,
-                'role_id' => 2, // Clinic role
+            // Create hospital first
+            $hospital = Hospital::create([
+                'clinic_name' => $step1Data['clinic_name'],
+                'phone' => $step1Data['phone'],
+                'email' => $step1Data['email'],
+                'tax_number' => $step1Data['tax_number'] ?? null,
+                'address' => $step1Data['address'] ?? null,
+                'city' => $step1Data['city'] ?? null,
+                'country' => $step1Data['country'] ?? null,
+                'website' => $step1Data['website'] ?? null,
+                'trial_start_date' => now(),
+                'trial_end_date' => now()->addDays(14),
+                'status' => 'trial'
             ]);
 
-            // Create clinic with trial period
-            $trialStartDate = Carbon::now();
-            $trialEndDate = $trialStartDate->copy()->addDays(14);
-
-            $clinic = Clinic::create([
-                'user_id' => $user->id,
-                'name' => $request->name,
-                'trial_start_date' => $trialStartDate,
-                'trial_end_date' => $trialEndDate,
-                // Add other clinic fields here
+            // Create user (clinic manager)
+            $user = User::create([
+                'name' => $step2Data['admin_name'],
+                'email' => $step2Data['admin_email'],
+                'phone' => $step2Data['admin_phone'],
+                'password' => Hash::make($step2Data['admin_password']),
+                'role_id' => 2, // Clinic manager role
+                'hospital_id' => $hospital->id,
+                'is_active' => true
             ]);
 
             DB::commit();
+
+            // Clear registration session data
+            Session::forget(['clinic_step1', 'clinic_step2']);
 
             // Log the user in
             auth()->login($user);
 
             return redirect()->route('clinic.dashboard')
-                ->with('success', 'Kayıt başarıyla tamamlandı. 14 günlük deneme süreniz başladı.');
+                ->with('success', '14 günlük deneme süreniz başladı. Kaydınız başarıyla tamamlandı.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Kayıt sırasında bir hata oluştu: ' . $e->getMessage());
+            \Log::error('Hastane kaydı hatası: ' . $e->getMessage());
+            return back()->with('error', 'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+        }
+    }
+
+    public function finalizeRegistration()
+    {
+        $step1Data = session('clinic_step1');
+        $step2Data = session('clinic_step2');
+        $step3Data = session('clinic_step3');
+
+        if (!$step1Data || !$step2Data || !$step3Data) {
+            return redirect()->route('register.step1')
+                ->with('error', 'Lütfen kayıt işlemini baştan başlatın.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Create hospital
+            $hospital = Hospital::create([
+                'clinic_name' => $step1Data['clinic_name'],
+                'phone' => $step1Data['phone'],
+                'email' => $step1Data['email'],
+                'tax_number' => $step1Data['tax_number'] ?? null,
+                'address' => $step1Data['address'] ?? null,
+                'city' => $step1Data['city'] ?? null,
+                'country' => $step1Data['country'] ?? null,
+                'website' => $step1Data['website'] ?? null,
+                'trial_start_date' => now(),
+                'trial_end_date' => now()->addDays(14),
+                'status' => 'trial'
+            ]);
+
+            // Create user (clinic manager)
+            $user = User::create([
+                'name' => $step2Data['admin_name'],
+                'email' => $step2Data['admin_email'],
+                'phone' => $step2Data['admin_phone'],
+                'password' => Hash::make($step2Data['admin_password']),
+                'role_id' => 2, // Clinic manager role
+                'hospital_id' => $hospital->id,
+                'is_active' => true
+            ]);
+
+            DB::commit();
+
+            // Clear registration session data
+            Session::forget(['clinic_step1', 'clinic_step2']);
+
+            // Log the user in
+            auth()->login($user);
+
+            return redirect()->route('clinic.dashboard')
+                ->with('success', '14 günlük deneme süreniz başladı. Kaydınız başarıyla tamamlandı.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Hastane kaydı hatası: ' . $e->getMessage());
+            return back()->with('error', 'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.');
         }
     }
 }

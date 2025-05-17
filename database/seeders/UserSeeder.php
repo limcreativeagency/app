@@ -4,29 +4,30 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
-        // Admin kullanıcısı
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@test.com',
-            'password' => Hash::make('password'),
-            'phone' => '+905551234567',
-            'role_id' => 1, // Admin role
-        ]);
+        // Süper Admin rolünü bul
+        $superAdminRole = Role::where('slug', 'super_admin')->first();
 
-        // Normal kullanıcılar
-        for ($i = 1; $i <= 5; $i++) {
+        // Süper Admin kullanıcısını oluştur
+        if (!User::where('email', 'admin@admin.com')->exists()) {
             User::create([
-                'name' => "User {$i}",
-                'email' => "user{$i}@test.com",
+                'name' => 'Süper Admin',
+                'email' => 'admin@admin.com',
                 'password' => Hash::make('password'),
-                'phone' => "+90555" . str_pad($i, 7, '0', STR_PAD_LEFT),
-                'role_id' => 3, // User role
+                'role_id' => $superAdminRole->id,
+                'is_active' => true,
+                'phone' => '5555555555',
             ]);
         }
     }

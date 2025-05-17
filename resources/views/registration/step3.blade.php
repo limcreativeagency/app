@@ -30,9 +30,23 @@
                     </div>
                     <form method="POST" action="{{ route('register.step3') }}">
                         @csrf
+                        @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                        @endif
                         <div class="mb-3">
-                            <input type="text" name="sms_code" class="form-control" value="{{ old('sms_code') }}" placeholder="{{ __('register_step3.sms_code') }}">
-                            @error('sms_code')<div class="text-danger small">{{ $message }}</div>@enderror
+                            <input type="text" name="verification_code" class="form-control" value="{{ old('verification_code') }}" placeholder="{{ __('register_step3.sms_code') }}">
+                            @error('verification_code')<div class="text-danger small">{{ $message }}</div>@enderror
                         </div>
                         <button type="submit" class="btn btn-success w-100 mt-2" style="border-radius:1.5rem; font-weight:700; font-size:1.1rem;">{{ __('register_step3.complete_registration') }}</button>
                         <div class="d-flex justify-content-start mt-2">

@@ -3,9 +3,9 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">{{ __('Hastalar') }}</h4>
+        <h4 class="mb-0">{{ __('patients.patients') }}</h4>
         <a href="{{ route('patients.create') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> {{ __('Yeni Hasta') }}
+            <i class="bi bi-plus-lg me-1"></i> {{ __('patients.new_patient') }}
         </a>
     </div>
 
@@ -27,10 +27,10 @@
                     <tr>
                         <th style="width:40px;">#</th>
                         <th style="width:40px;"></th>
-                        <th>Ad Soyad</th>
-                        <th>Telefon</th>
-                        <th style="width:80px;">Durum</th>
-                        <th style="width:110px;" class="text-end">İşlemler</th>
+                        <th>{{ __('patients.name') }}</th>
+                        <th>{{ __('patients.phone') }}</th>
+                        <th style="width:80px;">{{ __('patients.status') }}</th>
+                        <th style="width:110px;" class="text-end">{{ __('general.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,25 +53,27 @@
                             <td class="small">{{ $patient->user->phone }}</td>
                             <td>
                                 @if($patient->user->is_active)
-                                    <span class="badge bg-success">Aktif</span>
+                                    <span class="badge bg-success">{{ __('patients.active') }}</span>
                                 @else
-                                    <span class="badge bg-warning text-dark">Pasif</span>
+                                    <span class="badge bg-warning text-dark">{{ __('patients.inactive') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('patients.show', $patient) }}" class="btn btn-sm btn-outline-primary" title="Görüntüle"><i class="bi bi-eye"></i></a>
-                                <a href="{{ route('patients.edit', $patient) }}" class="btn btn-sm btn-outline-secondary" title="Düzenle"><i class="bi bi-pencil"></i></a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" title="Sil"
-                                    onclick="confirmDelete('{{ route('patients.destroy', $patient) }}')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('patients.show', $patient) }}" class="btn btn-sm btn-outline-primary mx-1" title="{{ __('general.view') }}"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-sm btn-outline-secondary mx-1" title="{{ __('general.edit') }}"><i class="bi bi-pencil"></i></a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger mx-1" title="{{ __('general.delete') }}"
+                                        onclick="confirmDelete('{{ route('patients.destroy', $patient) }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
                                 <i class="bi bi-people fs-2 d-block mb-2"></i>
-                                Henüz hasta kaydı bulunmuyor.
+                                {{ __('patients.no_patients_found') }}
                             </td>
                         </tr>
                     @endforelse
@@ -91,7 +93,7 @@
 @push('scripts')
 <script>
 function confirmDelete(url) {
-    if (confirm('Bu hastayı silmek istediğinizden emin misiniz?')) {
+    if (confirm('{{ __('patients.confirm_delete') }}')) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = url;

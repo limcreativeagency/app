@@ -16,7 +16,7 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => 'Süper Yönetici',
+                'name' => 'Süper Admin',
                 'slug' => 'super_admin',
                 'description' => 'Sistem üzerinde tam yetkiye sahip süper yönetici',
                 'is_active' => true,

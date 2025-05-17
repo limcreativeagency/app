@@ -71,4 +71,5 @@ return [
     ],
 
     'back' => 'Back',
+    'select' => 'Select',
 ]; 

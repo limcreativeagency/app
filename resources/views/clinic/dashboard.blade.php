@@ -12,7 +12,7 @@
             <div class="card-body">
                 <h5 class="card-title">{{ __('clinic.hospital_info') }}</h5>
                 <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><strong>{{ __('clinic.hospital_name') }}:</strong> {{ $hospital->clinic_name ?? $hospital->title }}</li>
+                    <li class="list-group-item"><strong>{{ __('clinic.clinic_name') }}:</strong> {{ $hospital->clinic_name }}</li>
                     <li class="list-group-item"><strong>{{ __('clinic.hospital_phone') }}:</strong> {{ $hospital->phone }}</li>
                     <li class="list-group-item"><strong>{{ __('clinic.hospital_email') }}:</strong> {{ $hospital->email }}</li>
                     <li class="list-group-item"><strong>{{ __('clinic.hospital_tax_number') }}:</strong> {{ $hospital->tax_number }}</li>

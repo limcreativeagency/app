@@ -32,9 +32,9 @@
                         @csrf
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">{{ __('register_step1.clinic_name') }}</label>
-                                <input type="text" name="title" class="form-control" value="{{ session('clinic_step1.title') }}">
-                                @error('title')<div class="text-danger small">{{ $message }}</div>@enderror
+                                <label class="form-label">{{ __('clinic.clinic_name') }}</label>
+                                <input type="text" name="clinic_name" class="form-control" value="{{ session('clinic_step1.clinic_name') }}" required>
+                                @error('clinic_name')<div class="text-danger small">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label mb-1" for="clinic-phone-input">{{ __('register_step1.phone') }}</label>

@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Telefon Doğrulama') }}</div>
+                <div class="card-header">{{ __('patients.verify_title') }}</div>
 
                 <div class="card-body">
                     @if (session('error'))
@@ -18,7 +18,7 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="verification_code" class="form-label">{{ __('Doğrulama Kodu') }}</label>
+                            <label for="verification_code" class="form-label">{{ __('patients.verify_code') }}</label>
                             <input type="text" class="form-control @error('verification_code') is-invalid @enderror" 
                                 id="verification_code" name="verification_code" required autofocus
                                 placeholder="Telefonunuza gönderilen 6 haneli kodu giriniz">
@@ -28,7 +28,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">{{ __('Yeni Şifre') }}</label>
+                            <label for="password" class="form-label">{{ __('patients.new_password') }}</label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                 id="password" name="password" required>
                             @error('password')
@@ -37,14 +37,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">{{ __('Şifre Tekrar') }}</label>
+                            <label for="password_confirmation" class="form-label">{{ __('patients.password_confirm') }}</label>
                             <input type="password" class="form-control" 
                                 id="password_confirmation" name="password_confirmation" required>
                         </div>
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
-                                {{ __('Doğrula ve Aktifleştir') }}
+                                {{ __('patients.verify_and_activate') }}
                             </button>
                         </div>
                     </form>

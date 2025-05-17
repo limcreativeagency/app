@@ -1,7 +1,8 @@
 <?php
 return [
     'dashboard_title' => 'Clinic Panel',
-    'hospital_info' => 'Hospital Information',
+    'clinic_name' => 'Clinic Name',
+    'hospital_info' => 'Clinic Information',
     'hospital_name' => 'Hospital Name',
     'hospital_phone' => 'Phone',
     'hospital_email' => 'Email',
@@ -9,7 +10,8 @@ return [
     'hospital_city' => 'City',
     'hospital_country' => 'Country',
     'hospital_website' => 'Website',
-    'hospital_edit_title' => 'Edit Hospital Information',
+    'hospital_edit' => 'Edit',
+    'hospital_edit_title' => 'Edit Clinic Information',
     'hospital_updated' => 'Hospital information updated successfully.',
     'hospital_tax_number' => 'Tax Number',
     'hospital_trial_start' => 'Trial Start',

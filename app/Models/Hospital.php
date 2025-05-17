@@ -11,7 +11,37 @@ class Hospital extends Model
 
     protected $fillable = [
         'clinic_name',
-        'title', 'phone', 'email', 'address', 'city', 'country', 'website', 'status',
-        'tax_number', 'description', 'notes', 'logo'
+        'phone',
+        'email',
+        'tax_number',
+        'address',
+        'city',
+        'country',
+        'website',
+        'description',
+        'notes',
+        'logo',
+        'trial_start_date',
+        'trial_end_date',
+        'subscription_start_date',
+        'subscription_end_date',
+        'status'
     ];
+
+    protected $casts = [
+        'trial_start_date' => 'datetime',
+        'trial_end_date' => 'datetime',
+        'subscription_start_date' => 'datetime',
+        'subscription_end_date' => 'datetime'
+    ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function manager()
+    {
+        return $this->hasOne(User::class)->where('role_id', 2);
+    }
 }
