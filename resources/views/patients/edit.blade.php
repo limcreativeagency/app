@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/build/css/intlTelInput.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
 <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 <style>
     .iti { width: 100%; } /* Ensure the plugin takes full width of the column */
@@ -130,7 +132,22 @@
                                     <div class="col-md-6">
                                         <label for="name" class="form-label">{{ __('patients.name') }} <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $patient->user->name) }}" required>
-                                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="language" class="form-label">{{ __('patients.language') }}</label>
+                                        <select class="form-select @error('language') is-invalid @enderror" id="language" name="language">
+                                            <option value="">{{ __('general.select') }}</option>
+                                            <option value="tr" {{ old('language', $patient->language) == 'tr' ? 'selected' : '' }}>Türkçe</option>
+                                            <option value="en" {{ old('language', $patient->language) == 'en' ? 'selected' : '' }}>English</option>
+                                            <option value="ar" {{ old('language', $patient->language) == 'ar' ? 'selected' : '' }}>العربية</option>
+                                            <option value="de" {{ old('language', $patient->language) == 'de' ? 'selected' : '' }}>Deutsch</option>
+                                        </select>
+                                        @error('language')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="email" class="form-label">{{ __('patients.email') }} <span class="text-danger">*</span></label>
@@ -419,23 +436,24 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/build/js/intlTelInput.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/build/js/utils.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     $(document).ready(function() {
         // Initialize Bootstrap tabs
-        var triggerTabList = [].slice.call(document.querySelectorAll('#patientTabs button'))
-        triggerTabList.forEach(function (triggerEl) {
-            var tabTrigger = new bootstrap.Tab(triggerEl)
-            triggerEl.addEventListener('click', function (event) {
-                event.preventDefault()
-                tabTrigger.show()
-            })
+        var triggerTabList = document.querySelectorAll('#patientTabs button');
+        triggerTabList.forEach(function(triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
         });
 
         // Restore active tab from localStorage if exists
@@ -446,7 +464,7 @@
         }
 
         // Store the active tab in localStorage when changed
-        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             localStorage.setItem('activePatientTab', '#' + e.target.id);
         });
 
@@ -457,7 +475,7 @@
         if(phoneInput) {
             iti = window.intlTelInput(phoneInput, {
                 initialCountry: "tr",
-                nationalMode: true,
+                nationalMode: false,
                 preferredCountries: ['tr', 'us', 'gb', 'de'],
                 separateDialCode: true,
                 utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/build/js/utils.js"
@@ -465,27 +483,45 @@
 
             // Form gönderilmeden önce telefon numarasını düzenle
             $('form').on('submit', function(e) {
+                e.preventDefault(); // Form gönderimini durdur
+                
                 if (phoneInput.value.trim()) {
                     // Ülke kodunu al
                     const countryData = iti.getSelectedCountryData();
-                    $('#country_code').val(countryData.dialCode);
+                    const dialCode = countryData.dialCode;
+                    $('#country_code').val(dialCode);
                     
-                    // Telefon numarasını formatla (E.164 formatında)
-                    const fullNumber = iti.getNumber();
-                    phoneInput.value = fullNumber;
+                    // Telefon numarasını formatla
+                    let phoneNumber = phoneInput.value.trim();
+                    
+                    // Tüm boşlukları ve özel karakterleri temizle
+                    phoneNumber = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
+                    
+                    // Başındaki sıfırları kaldır
+                    phoneNumber = phoneNumber.replace(/^0+/, '');
+                    
+                    // Eğer numara + ile başlamıyorsa ve ülke kodu içermiyorsa ekle
+                    if (!phoneNumber.startsWith('+') && !phoneNumber.startsWith(dialCode)) {
+                        phoneNumber = '+' + dialCode + phoneNumber;
+                    }
+                    
+                    phoneInput.value = phoneNumber;
                 }
+                
+                // Formu gönder
+                this.submit();
             });
 
             // Sayfa yüklendiğinde mevcut telefon numarasını ayarla
             if (phoneInput.value) {
-                const initialNumber = phoneInput.value;
-                if (!initialNumber.startsWith('+')) {
-                    // Eğer başında + yoksa, country_code ile birleştir
-                    const countryCode = $('#country_code').val();
-                    if (countryCode) {
-                        phoneInput.value = '+' + countryCode + initialNumber;
-                    }
+                const storedCountryCode = $('#country_code').val();
+                const phoneNumber = phoneInput.value;
+                
+                // Eğer numara + ile başlamıyorsa ve ülke kodu varsa, ekle
+                if (!phoneNumber.startsWith('+') && storedCountryCode) {
+                    phoneInput.value = '+' + storedCountryCode + phoneNumber.replace(/^0+/, '');
                 }
+                
                 iti.setNumber(phoneInput.value);
             }
 

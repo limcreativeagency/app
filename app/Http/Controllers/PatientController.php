@@ -296,37 +296,33 @@ class PatientController extends Controller
     public function verify(Request $request, $userId)
     {
         $request->validate([
-            'verification_code' => 'required|string|size:6',
-            'password' => 'required|string|min:8|confirmed',
+            'verification_code' => 'required|string|size:6'
         ]);
 
         $verification = Session::get('patient_verification');
         if (!$verification || $verification['user_id'] != $userId || now()->isAfter($verification['expires_at'])) {
-            return redirect()->route('patients.index')
-                ->with('error', 'Doğrulama süresi doldu veya geçersiz doğrulama.');
+            return back()->with('error', 'Doğrulama süresi doldu veya geçersiz doğrulama.');
         }
 
         if ($request->verification_code !== $verification['code']) {
-            return back()->with('error', 'Geçersiz doğrulama kodu.');
+            return back()->with('error', 'Yanlış doğrulama kodu.');
         }
 
-        DB::beginTransaction();
         try {
             $user = User::findOrFail($userId);
-            $user->update([
-                'password' => Hash::make($request->password),
-                'is_active' => true,
-            ]);
-
+            $user->update(['is_active' => true]);
+            
             Session::forget('patient_verification');
-            DB::commit();
-
-            return redirect()->route('login')
-                ->with('success', 'Hesabınız başarıyla aktifleştirildi. Şimdi giriş yapabilirsiniz.');
+            return redirect()->route('patients.index')
+                ->with('success', 'Hasta kaydı başarıyla doğrulandı.');
         } catch (\Exception $e) {
-            DB::rollback();
-            return back()->with('error', 'Doğrulama sırasında bir hata oluştu: ' . $e->getMessage());
+            return back()->with('error', 'Doğrulama işlemi sırasında bir hata oluştu.');
         }
+    }
+
+    public function treatments()
+    {
+        return view('patients.treatments');
     }
 
     /**
@@ -376,7 +372,7 @@ class PatientController extends Controller
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
-    protected function preparePatientData($request)
+    protected function preparePatientData(Request $request)
     {
         $patientData = [
             'user_id' => auth()->id(),

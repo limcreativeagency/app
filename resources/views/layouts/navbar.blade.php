@@ -21,7 +21,23 @@
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('clinic.dashboard') ? 'active' : '' }}" href="{{ route('clinic.dashboard') }}">{{ __('clinic.dashboard_title') }}</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.doctor') ? 'active' : '' }}" href="{{ route('users.index.doctor') }}">{{ __('clinic.menu_doctors') }}</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.representative') ? 'active' : '' }}" href="{{ route('users.index.representative') }}">{{ __('clinic.menu_representatives') }}</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('patients.index') ? 'active' : '' }}" href="{{ route('patients.index') }}">{{ __('clinic.menu_patients') }}</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold px-2 dropdown-toggle {{ Request::routeIs('patients.*') ? 'active' : '' }}" href="#" id="patientsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ __('clinic.menu_patients') }} <i class="bi bi-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="patientsDropdown">
+                                <li>
+                                    <a class="dropdown-item {{ Request::routeIs('patients.index') ? 'active' : '' }}" href="{{ route('patients.index') }}">
+                                        <i class="bi bi-list-ul me-2"></i>Hasta Listesi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item {{ Request::routeIs('patients.treatments') ? 'active' : '' }}" href="{{ route('patients.treatments') }}">
+                                        <i class="bi bi-clipboard2-pulse me-2"></i>Hasta Tedavileri
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">{{ __('clinic.menu_reports') }}</a></li>
                     @else
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="#">Panel</a></li>

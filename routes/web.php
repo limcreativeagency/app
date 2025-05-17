@@ -66,6 +66,7 @@ Route::prefix('users')->middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     // Patient Routes
+    Route::get('patients/treatments', [PatientController::class, 'treatments'])->name('patients.treatments');
     Route::resource('patients', PatientController::class);
     Route::get('patients/{userId}/verify', [PatientController::class, 'showVerification'])->name('patients.verify');
     Route::post('patients/{userId}/verify', [PatientController::class, 'verify'])->name('patients.verify.submit');
