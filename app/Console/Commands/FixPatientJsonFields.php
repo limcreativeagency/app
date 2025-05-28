@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Patient;
 
 class FixPatientJsonFields extends Command
 {

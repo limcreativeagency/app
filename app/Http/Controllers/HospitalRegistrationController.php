@@ -22,7 +22,7 @@ class HospitalRegistrationController extends Controller
     // 1. Klinik bilgi formu submit
     public function step1Submit(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'clinic_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|unique:hospitals,email',
@@ -30,10 +30,17 @@ class HospitalRegistrationController extends Controller
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
-            'website' => 'nullable|url|max:255',
+            'website' => 'nullable|string|max:255',
         ]);
 
-        session(['clinic_step1' => $request->all()]);
+        // Website başına http/https ekle
+        if (!empty($validatedData['website'])) {
+            if (!preg_match('/^https?:\/\//i', $validatedData['website'])) {
+                $validatedData['website'] = 'https://' . $validatedData['website'];
+            }
+        }
+
+        session(['clinic_step1' => $validatedData]);
         return redirect()->route('register.step2');
     }
 
@@ -53,13 +60,8 @@ class HospitalRegistrationController extends Controller
             'admin_password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Handle phone number formatting
-        $phone = preg_replace('/\D+/', '', $request->admin_phone_visible);
-        $countryCode = $request->admin_phone_country ?: '90'; // Default to Turkey if not specified
-        if (strpos($phone, $countryCode) !== 0) {
-            $phone = $countryCode . $phone;
-        }
-        $validated['admin_phone'] = '+' . $phone;
+        // Sadece hidden input'tan gelen değeri kullan!
+        $validated['admin_phone'] = $request->admin_phone;
 
         // Store all validated data in session
         Session::put('clinic_step2', $validated);

@@ -100,11 +100,6 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="treatments-tab" data-bs-toggle="tab" data-bs-target="#treatments" type="button" role="tab">
-                                    <i class="bi bi-capsule"></i> Tedaviler ve İlaçlar
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency" type="button" role="tab">
                                     <i class="bi bi-people-fill"></i> Acil Durum
                                 </button>
@@ -158,6 +153,17 @@
                                             <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>{{ __('patients.gender_other') }}</option>
                                         </select>
                                         @error('gender') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="marital_status" class="form-label">{{ __('patients.marital_status') }}</label>
+                                        <select class="form-select @error('marital_status') is-invalid @enderror" id="marital_status" name="marital_status">
+                                            <option value="">{{ __('general.select') }}</option>
+                                            <option value="single" {{ old('marital_status') == 'single' ? 'selected' : '' }}>{{ __('patients.single') }}</option>
+                                            <option value="married" {{ old('marital_status') == 'married' ? 'selected' : '' }}>{{ __('patients.married') }}</option>
+                                            <option value="divorced" {{ old('marital_status') == 'divorced' ? 'selected' : '' }}>{{ __('patients.divorced') }}</option>
+                                            <option value="widowed" {{ old('marital_status') == 'widowed' ? 'selected' : '' }}>{{ __('patients.widowed') }}</option>
+                                        </select>
+                                        @error('marital_status') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-12">
                                         <label for="address" class="form-label">{{ __('patients.address') }}</label>
@@ -251,17 +257,6 @@
                                         <input type="text" class="form-control @error('occupation') is-invalid @enderror" id="occupation" name="occupation" value="{{ old('occupation') }}" placeholder="{{ __('patients.occupation_placeholder') }}">
                                         @error('occupation') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="marital_status" class="form-label">{{ __('patients.marital_status') }}</label>
-                                        <select class="form-select @error('marital_status') is-invalid @enderror" id="marital_status" name="marital_status">
-                                            <option value="">{{ __('general.select') }}</option>
-                                            <option value="single" {{ old('marital_status') == 'single' ? 'selected' : '' }}>{{ __('patients.single') }}</option>
-                                            <option value="married" {{ old('marital_status') == 'married' ? 'selected' : '' }}>{{ __('patients.married') }}</option>
-                                            <option value="divorced" {{ old('marital_status') == 'divorced' ? 'selected' : '' }}>{{ __('patients.divorced') }}</option>
-                                            <option value="widowed" {{ old('marital_status') == 'widowed' ? 'selected' : '' }}>{{ __('patients.widowed') }}</option>
-                                        </select>
-                                        @error('marital_status') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                                    </div>
                                     <div class="col-md-12 mb-3">
                                         <label for="allergies" class="form-label">{{ __('patients.allergies') }}</label>
                                         <input type="text" class="form-control tagify-input @error('allergies') is-invalid @enderror @error('allergies.*') is-invalid @enderror" id="allergies" name="allergies" value="{{ old('allergies') ? (is_array(old('allergies')) ? implode(',', old('allergies')) : old('allergies')) : '' }}" placeholder="{{ __('patients.allergies_placeholder') }}">
@@ -279,14 +274,6 @@
                                         <input type="text" class="form-control tagify-input @error('medications_used') is-invalid @enderror" id="medications_used" name="medications_used" value="{{ old('medications_used') }}" placeholder="{{ __('patients.medications_used_placeholder') }}">
                                         @error('medications_used') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Tedaviler ve İlaçlar -->
-                            <div class="tab-pane fade" id="treatments" role="tabpanel">
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    Tedavi ve ilaç kayıtları yakında eklenecektir.
                                 </div>
                             </div>
 
@@ -350,6 +337,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
@@ -367,6 +355,9 @@
                 tabTrigger.show();
             });
         });
+
+        // Form ilk açıldığında localStorage'daki aktif sekme bilgisini temizle
+        localStorage.removeItem('activePatientTab');
 
         // Restore active tab from localStorage if exists
         var activeTab = localStorage.getItem('activePatientTab');

@@ -56,8 +56,8 @@
                     @endif
                     <input type="file" name="logo" class="form-control">
                 </div>
-                <button type="submit" class="btn btn-success">{{ __('general.general.save') }}</button>
-                <a href="{{ route('clinic.dashboard') }}" class="btn btn-secondary">{{ __('general.general.cancel') }}</a>
+                <button type="submit" class="btn btn-success">{{ __('general.save') }}</button>
+                <a href="{{ route('clinic.dashboard') }}" class="btn btn-secondary">{{ __('general.cancel') }}</a>
             </form>
         </div>
     </div>

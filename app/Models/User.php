@@ -77,33 +77,67 @@ class User extends Authenticatable
         return $this->belongsTo(Hospital::class);
     }
 
+    /**
+     * Check if user has a specific role or roles
+     *
+     * @param string|array $roles Role slug(s) to check
+     * @return bool
+     */
+    public function hasRole($roles)
+    {
+        // If role relationship is not loaded, load it
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+
+        // If role is null, return false
+        if (!$this->role) {
+            return false;
+        }
+
+        if (is_string($roles)) {
+            return $this->role->slug === $roles;
+        }
+
+        if (is_array($roles)) {
+            return in_array($this->role->slug, $roles);
+        }
+
+        return false;
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->role && in_array($this->role->slug, $roles);
+    }
+
     // Kullanıcının hasta olup olmadığını kontrol eden metod
     public function isPatient()
     {
-        return $this->role->slug === 'patient';
+        return $this->hasRole('patient');
     }
 
     // Kullanıcının doktor olup olmadığını kontrol eden metod
     public function isDoctor()
     {
-        return $this->role->slug === 'doctor';
+        return $this->hasRole('doctor');
     }
 
     // Kullanıcının hemşire olup olmadığını kontrol eden metod
     public function isNurse()
     {
-        return $this->role->slug === 'nurse';
+        return $this->hasRole('nurse');
     }
 
     // Kullanıcının yönetici olup olmadığını kontrol eden metod
     public function isAdmin()
     {
-        return $this->role->slug === 'admin';
+        return $this->hasRole('admin');
     }
 
     // Kullanıcının süper yönetici olup olmadığını kontrol eden metod
     public function isSuperAdmin()
     {
-        return $this->role->slug === 'super_admin';
+        return $this->hasRole('super_admin');
     }
 }

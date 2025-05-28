@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+{{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+{{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"> --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
 <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 <style>
@@ -69,21 +69,33 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                </div>
+            @endif
+            
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title m-0">{{ __('patients.patient_details') }}</h3>
+                    <h5 class="card-title m-0">{{ __('patients.patient_details') }}</h5>
                     <div class="card-tools">
-                        <a href="{{ route('patients.index') }}" class="btn btn-default btn-sm">
+                        <a href="{{ route('patients.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> {{ __('general.back') }}
                         </a>
                     </div>
                 </div>
-                <form action="{{ route('patients.update', $patient) }}" method="POST" enctype="multipart/form-data">
+                <form id="patientEditForm" action="{{ route('patients.update', $patient) }}" method="POST">
                     @csrf
                     @method('PUT')
+                    
+                    <!-- Telefon için gizli alan -->
+                    <input type="hidden" id="full_phone" name="phone" value="{{ old('phone', $patient->user->phone) }}">
+                    <input type="hidden" id="country_code" name="country_code" value="{{ old('country_code', $patient->user->country_code) }}">
+
                     <div class="card-body">
                         @if($errors->any())
                             <div class="alert alert-danger">
@@ -105,11 +117,6 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button" role="tab">
                                     <i class="bi bi-heart-pulse"></i> Sağlık Bilgileri
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="treatments-tab" data-bs-toggle="tab" data-bs-target="#treatments" type="button" role="tab">
-                                    <i class="bi bi-capsule"></i> Tedaviler ve İlaçlar
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -144,7 +151,6 @@
                                     <div class="col-md-6">
                                         <label for="phone" class="form-label">{{ __('patients.phone') }}</label>
                                         <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $patient->user->phone) }}">
-                                        <input type="hidden" id="country_code" name="country_code" value="{{ old('country_code', $patient->user->country_code) }}">
                                         @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-6">
@@ -295,17 +301,10 @@
                                     </div>
                                     <div class="col-md-12">
                                         <label for="medications_used" class="form-label">{{ __('patients.medications_used') }}</label>
-                                        <input type="text" class="form-control tagify-input @error('medications_used') is-invalid @enderror" id="medications_used" name="medications_used" value="{{ old('medications_used', $patient->medications_used ? (is_array($patient->medications_used) ? implode(',', $patient->medications_used) : $patient->medications_used) : '') }}" placeholder="{{ __('patients.medications_used_placeholder') }}">
-                                        @error('medications_used') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        <input type="text" class="form-control tagify-input @error('medications_used') is-invalid @enderror @error('medications_used.*') is-invalid @enderror" id="medications_used" name="medications_used" value="{{ old('medications_used', is_array($patient->medications_used) ? implode(',', array_map(function($item) { return is_array($item) ? $item['value'] : $item; }, $patient->medications_used)) : ($patient->medications_used ?? '')) }}" placeholder="{{ __('patients.medications_used_placeholder') }}">
+                                        @error('medications_used') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                        @error('medications_used.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Tedaviler ve İlaçlar -->
-                            <div class="tab-pane fade" id="treatments" role="tabpanel">
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    Tedavi ve ilaç kayıtları yakında eklenecektir.
                                 </div>
                             </div>
 
@@ -391,27 +390,27 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="add-emergency-contact">
                                     <i class="bi bi-plus"></i> {{ __('patients.add_emergency_contact') }}
                                 </button>
-                                </div>
-                                
+                            </div>
+
                             <!-- Notes Tab -->
                             <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
                                 <div class="row">
                                     <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="notes" class="visually-hidden">{{ __('patients.notes') }}</label>
-                                    <textarea class="form-control @error('notes') is-invalid @enderror" 
+                                        <div class="form-group">
+                                            <label for="notes" class="visually-hidden">{{ __('patients.notes') }}</label>
+                                            <textarea class="form-control @error('notes') is-invalid @enderror" 
                                                       id="notes" name="notes" rows="5" 
                                                       placeholder="{{ __('patients.notes_placeholder') }}">{{ old('notes', $patient->notes) }}</textarea>
-                                    @error('notes') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                            @error('notes') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer text-end">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> {{ __('general.update') }}
+                            <i class="fas fa-save me-1"></i> {{ __('general.save') }}
                         </button>
                     </div>
                 </form>
@@ -422,171 +421,173 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
+
+<!-- Plugin JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Initialize Bootstrap tabs
-        var triggerTabList = document.querySelectorAll('#patientTabs button');
-        triggerTabList.forEach(function(triggerEl) {
-            var tabTrigger = new bootstrap.Tab(triggerEl);
-            triggerEl.addEventListener('click', function(event) {
-                event.preventDefault();
-                tabTrigger.show();
-            });
-        });
-
-        // Restore active tab from localStorage if exists
-        var activeTab = localStorage.getItem('activePatientTab');
-        if (activeTab) {
-            var tab = new bootstrap.Tab(document.querySelector(activeTab));
-            tab.show();
+    document.addEventListener('DOMContentLoaded', function() {
+        // Otomatik kaybolacak alert için
+        const alertElement = document.querySelector('.alert-success');
+        if (alertElement) {
+            setTimeout(function() {
+                const alert = new bootstrap.Alert(alertElement);
+                alert.close();
+            }, 3000);
         }
 
-        // Store the active tab in localStorage when changed
-        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
-            localStorage.setItem('activePatientTab', '#' + e.target.id);
-        });
-
-        // Telefon numarası işlemleri
-        const phoneInput = document.querySelector("#phone");
+        // Initialize phone input
+        const phoneInputField = document.querySelector("#phone");
         let iti = null;
-        
-        if(phoneInput) {
-            iti = window.intlTelInput(phoneInput, {
+
+        if (phoneInputField) {
+            iti = window.intlTelInput(phoneInputField, {
                 initialCountry: "tr",
-                nationalMode: false,
-                preferredCountries: ['tr', 'us', 'gb', 'de'],
+                preferredCountries: ['tr'],
                 separateDialCode: true,
-                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/build/js/utils.js"
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
             });
 
-            // Form gönderilmeden önce telefon numarasını düzenle
-            $('form').on('submit', function(e) {
-                e.preventDefault(); // Form gönderimini durdur
-                
-                if (phoneInput.value.trim()) {
-                    // Ülke kodunu al
-                    const countryData = iti.getSelectedCountryData();
-                    const dialCode = countryData.dialCode;
-                    $('#country_code').val(dialCode);
-                    
-                    // Telefon numarasını formatla
-                    let phoneNumber = phoneInput.value.trim();
-                    
-                    // Tüm boşlukları ve özel karakterleri temizle
-                    phoneNumber = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
-                    
-                    // Başındaki sıfırları kaldır
-                    phoneNumber = phoneNumber.replace(/^0+/, '');
-                    
-                    // Eğer numara + ile başlamıyorsa ve ülke kodu içermiyorsa ekle
-                    if (!phoneNumber.startsWith('+') && !phoneNumber.startsWith(dialCode)) {
-                        phoneNumber = '+' + dialCode + phoneNumber;
-                    }
-                    
-                    phoneInput.value = phoneNumber;
-                }
-                
-                // Formu gönder
-                this.submit();
-            });
-
-            // Sayfa yüklendiğinde mevcut telefon numarasını ayarla
-            if (phoneInput.value) {
-                const storedCountryCode = $('#country_code').val();
-                const phoneNumber = phoneInput.value;
-                
-                // Eğer numara + ile başlamıyorsa ve ülke kodu varsa, ekle
-                if (!phoneNumber.startsWith('+') && storedCountryCode) {
-                    phoneInput.value = '+' + storedCountryCode + phoneNumber.replace(/^0+/, '');
-                }
-                
-                iti.setNumber(phoneInput.value);
+            // Set initial phone number
+            const storedPhone = document.querySelector("#full_phone").value;
+            if (storedPhone) {
+                iti.setNumber(storedPhone);
             }
 
-            // Telefon numarası değiştiğinde
-            phoneInput.addEventListener('change', function() {
-                if (phoneInput.value.trim()) {
+            // Phone number change handler
+            phoneInputField.addEventListener('change', function() {
+                if (this.value) {
                     const countryData = iti.getSelectedCountryData();
-                    $('#country_code').val(countryData.dialCode);
+                    document.querySelector("#country_code").value = countryData.dialCode;
+                    document.querySelector("#full_phone").value = iti.getNumber();
                 }
             });
 
-            // Ülke seçimi değiştiğinde
-            phoneInput.addEventListener("countrychange", function() {
+            // Country change handler
+            phoneInputField.addEventListener("countrychange", function() {
                 const countryData = iti.getSelectedCountryData();
-                $('#country_code').val(countryData.dialCode);
+                document.querySelector("#country_code").value = countryData.dialCode;
+                document.querySelector("#full_phone").value = iti.getNumber();
             });
         }
 
-        if (typeof $.fn.mask === 'function') { 
-            $('#identity_number').mask('99999999999');
-        } else {
-            console.warn('jQuery Mask Plugin is not loaded.');
+        // Form submit handler
+        const form = document.getElementById('patientEditForm');
+        form.addEventListener('submit', function(e) {
+            if (phoneInputField && phoneInputField.value) {
+                const phoneNumber = iti.getNumber();
+                if (phoneNumber && phoneNumber !== '+undefined' && phoneNumber !== 'undefined') {
+                    document.querySelector("#full_phone").value = phoneNumber;
+                    document.querySelector("#country_code").value = iti.getSelectedCountryData().dialCode;
+                } else {
+                    document.querySelector("#full_phone").value = '';
+                    document.querySelector("#country_code").value = '';
+                }
+            } else {
+                document.querySelector("#full_phone").value = '';
+                document.querySelector("#country_code").value = '';
+            }
+        });
+
+        // Initialize Bootstrap tabs
+        const tabElements = document.querySelectorAll('#patientTabs button[data-bs-toggle="tab"]');
+        tabElements.forEach(function(tabElement) {
+            const tab = new bootstrap.Tab(tabElement);
+            tabElement.addEventListener('click', function(event) {
+                event.preventDefault();
+                tab.show();
+            });
+        });
+
+        // Restore active tab
+        const activeTabId = localStorage.getItem('activePatientTab');
+        if (activeTabId) {
+            const activeTabElement = document.querySelector(activeTabId);
+            if (activeTabElement) {
+                const activeTab = new bootstrap.Tab(activeTabElement);
+                activeTab.show();
+            }
         }
 
+        // Store active tab
+        tabElements.forEach(function(tabElement) {
+            tabElement.addEventListener('shown.bs.tab', function(event) {
+                localStorage.setItem('activePatientTab', '#' + event.target.id);
+            });
+        });
+
+        // TC Kimlik input mask
+        const identityInput = document.getElementById('identity_number');
+        if (identityInput) {
+            identityInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                e.target.value = value;
+            });
+        }
+
+        // Initialize Tagify
         ['allergies', 'chronic_diseases', 'medications_used'].forEach(function(fieldName) {
-            var input = document.querySelector('#' + fieldName);
+            const input = document.getElementById(fieldName);
             if (input) {
                 new Tagify(input, {});
             }
         });
 
+        // Emergency contacts handling
         let contactIndex = {{ $patient->emergencyContacts->count() > 0 ? $patient->emergencyContacts->count() : 1 }};
-        var emergencyLabels = {
-            name: "{{ __('patients.contact_name') }}",
-            phone: "{{ __('patients.contact_phone') }}",
-            relation: "{{ __('patients.contact_relation') }}"
-        };
-        var emergencyPlaceholders = {
-            name: "{{ __('patients.contact_name_placeholder') }}",
-            phone: "{{ __('patients.contact_phone_placeholder') }}",
-            relation: "{{ __('patients.contact_relation_placeholder') }}"
-        };
+        const addContactButton = document.getElementById('add-emergency-contact');
+        const contactsWrapper = document.getElementById('emergency-contacts-wrapper');
 
-        $('#add-emergency-contact').on('click', function() {
-            let row = `<div class="row g-3 mb-2 emergency-contact-row">
-                <div class="col-md-4">
-                    <label class="form-label">${emergencyLabels.name}</label>
-                    <input type="text" name="emergency_contacts[${contactIndex}][name]" class="form-control" 
-                           placeholder="${emergencyPlaceholders.name}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">${emergencyLabels.phone}</label>
-                    <input type="text" name="emergency_contacts[${contactIndex}][phone]" class="form-control" 
-                           placeholder="${emergencyPlaceholders.phone}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">${emergencyLabels.relation}</label>
-                    <input type="text" name="emergency_contacts[${contactIndex}][relation]" class="form-control" 
-                           placeholder="${emergencyPlaceholders.relation}">
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-sm remove-emergency-contact">&times;</button>
-                </div>
-            </div>`;
-            $('#emergency-contacts-wrapper').append(row);
-            contactIndex++;
-            updateRemoveButtons();
-        });
+        if (addContactButton && contactsWrapper) {
+            addContactButton.addEventListener('click', function() {
+                const template = `
+                    <div class="row g-3 mb-2 emergency-contact-row">
+                        <div class="col-md-4">
+                            <label class="form-label">{{ __('patients.contact_name') }}</label>
+                            <input type="text" name="emergency_contacts[${contactIndex}][name]" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ __('patients.contact_phone') }}</label>
+                            <input type="text" name="emergency_contacts[${contactIndex}][phone]" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{{ __('patients.contact_relation') }}</label>
+                            <input type="text" name="emergency_contacts[${contactIndex}][relation]" class="form-control" required>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-emergency-contact">&times;</button>
+                        </div>
+                    </div>`;
+                contactsWrapper.insertAdjacentHTML('beforeend', template);
+                contactIndex++;
+                updateRemoveButtons();
+            });
 
-        $(document).on('click', '.remove-emergency-contact', function() {
-            $(this).closest('.emergency-contact-row').remove();
-            updateRemoveButtons();
-        });
+            // Remove contact handler
+            contactsWrapper.addEventListener('click', function(e) {
+                if (e.target.matches('.remove-emergency-contact')) {
+                    e.target.closest('.emergency-contact-row').remove();
+                    updateRemoveButtons();
+                }
+            });
 
-        function updateRemoveButtons() {
-            $('.remove-emergency-contact').show();
-            if ($('.emergency-contact-row').length === 1) {
-                $('.remove-emergency-contact').hide();
+            function updateRemoveButtons() {
+                const removeButtons = document.querySelectorAll('.remove-emergency-contact');
+                const rows = document.querySelectorAll('.emergency-contact-row');
+                removeButtons.forEach(button => {
+                    button.style.display = rows.length === 1 ? 'none' : 'block';
+                });
             }
+
+            updateRemoveButtons();
         }
-        updateRemoveButtons();
     });
 </script>
 @endpush 

@@ -8,6 +8,48 @@
             </div>
         @endif
         <h1 class="mb-4">{{ __('clinic.dashboard_title') }}</h1>
+
+        @if($showMenus)
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ __('clinic.patients') }}</h5>
+                        <p class="card-text">{{ __('clinic.manage_patients') }}</p>
+                        <a href="{{ route('patients.index') }}" class="btn btn-primary">{{ __('general.general.view') }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ __('clinic.treatments') }}</h5>
+                        <p class="card-text">{{ __('clinic.manage_treatments') }}</p>
+                        <a href="{{ route('treatments.index') }}" class="btn btn-primary">{{ __('general.general.view') }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ __('clinic.medication_plans') }}</h5>
+                        <p class="card-text">{{ __('clinic.manage_medication_plans') }}</p>
+                        <a href="{{ route('medication-plans.index') }}" class="btn btn-primary">{{ __('general.general.view') }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ __('clinic.photos') }}</h5>
+                        <p class="card-text">{{ __('clinic.manage_photos') }}</p>
+                        <a href="{{ route('photos.index') }}" class="btn btn-primary">{{ __('general.general.view') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">{{ __('clinic.hospital_info') }}</h5>
@@ -41,7 +83,9 @@
                     <li class="list-group-item"><strong>{{ __('clinic.hospital_website') }}:</strong> {{ $hospital->website }}</li>
                     <li class="list-group-item"><strong>{{ __('clinic.hospital_notes') }}:</strong> {{ $hospital->notes }}</li>
                 </ul>
+                @if($user->role_id === 2)
                 <a href="{{ route('clinic.hospital.edit') }}" class="btn btn-primary">{{ __('general.general.edit') }}</a>
+                @endif
             </div>
         </div>
     </div>

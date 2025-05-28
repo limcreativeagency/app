@@ -17,28 +17,34 @@
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="#">Süper Admin Paneli</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Kullanıcılar</a></li>
                         <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">Klinikler</a></li>
-                    @elseif(Auth::user()->role_id == 2)
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('clinic.dashboard') ? 'active' : '' }}" href="{{ route('clinic.dashboard') }}">{{ __('clinic.dashboard_title') }}</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.doctor') ? 'active' : '' }}" href="{{ route('users.index.doctor') }}">{{ __('clinic.menu_doctors') }}</a></li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('users.index.representative') ? 'active' : '' }}" href="{{ route('users.index.representative') }}">{{ __('clinic.menu_representatives') }}</a></li>
+                    @elseif(in_array(Auth::user()->role_id, [2,3,4]))
                         <li class="nav-item dropdown">
-                            <a class="nav-link fw-semibold px-2 dropdown-toggle {{ Request::routeIs('patients.*') ? 'active' : '' }}" href="#" id="patientsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ __('clinic.menu_patients') }} <i class="bi bi-chevron-down"></i>
+                            <a class="nav-link fw-semibold px-2 dropdown-toggle {{ Request::routeIs('clinic.dashboard') ? 'active' : '' }}" href="#" id="clinicManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Klinik Yönetimi
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="patientsDropdown">
-                                <li>
-                                    <a class="dropdown-item {{ Request::routeIs('patients.index') ? 'active' : '' }}" href="{{ route('patients.index') }}">
-                                        <i class="bi bi-list-ul me-2"></i>Hasta Listesi
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item {{ Request::routeIs('patients.treatments') ? 'active' : '' }}" href="{{ route('patients.treatments') }}">
-                                        <i class="bi bi-clipboard2-pulse me-2"></i>Hasta Tedavileri
-                                    </a>
-                                </li>
+                            <ul class="dropdown-menu" aria-labelledby="clinicManagementDropdown">
+                                <li><a class="dropdown-item" href="{{ route('clinic.dashboard') }}">Klinik</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.index.doctor') }}">Doktorlar</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.index.representative') }}">Temsilciler</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link fw-semibold px-2" href="#">{{ __('clinic.menu_reports') }}</a></li>
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('patients.index') ? 'active' : '' }}" href="{{ route('patients.index') }}">Hastalar</a></li>
+                        @php
+                            $unreadCount = \DB::table('treatment_notes')
+                                ->whereNull('read_at')
+                                ->where('user_id', '!=', auth()->id())
+                                ->selectRaw('count(distinct treatment_id) as total')
+                                ->value('total');
+                        @endphp
+                        <li class="nav-item"><a class="nav-link fw-semibold px-2 {{ Request::routeIs('treatments.index') ? 'active' : '' }}" href="{{ route('treatments.index') }}">Tedaviler</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-2 position-relative {{ Request::is('messages/unread') ? 'active' : '' }}" href="{{ route('messages.unread') }}">
+                                Okunmamış Mesajlar
+                                @if($unreadCount > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $unreadCount }}</span>
+                                @endif
+                            </a>
+                        </li>
                     @else
                         <li class="nav-item"><a class="nav-link fw-semibold px-2 active" href="#">Panel</a></li>
                     @endif

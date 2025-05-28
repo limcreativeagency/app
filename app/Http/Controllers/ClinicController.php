@@ -15,7 +15,8 @@ class ClinicController extends Controller
             abort(403, 'Yetkisiz erişim veya hastane kaydı bulunamadı.');
         }
         $hospital = $user->hospital;
-        return view('clinic.dashboard', compact('hospital'));
+        $showMenus = in_array($user->role_id, [2, 3, 4]);
+        return view('clinic.dashboard', compact('hospital', 'showMenus', 'user'));
     }
 
     public function editHospital()

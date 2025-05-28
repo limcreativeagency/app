@@ -1,6 +1,6 @@
 <?php
 return [
-    'dashboard_title' => 'Klinik Paneli',
+    'dashboard_title' => 'Klinik Yönetimi',
     'clinic_name' => 'Klinik Adı',
     'hospital_info' => 'Klinik Bilgileri',
     'hospital_phone' => 'Telefon',
@@ -25,8 +25,19 @@ return [
     'hospital_status_active' => 'Aktif',
     'hospital_status_expired' => 'Süresi Doldu',
     'trial_days_left' => '14 günlük deneme sürenizden :days gün kaldı',
+    'menu_patients' => 'Hastalar',
+    'menu_treatments' => 'Tedaviler',
+    'menu_medication_plans' => 'İlaç Planları',
+    'menu_photos' => 'Fotoğraflar',
     'menu_doctors' => 'Doktorlar',
     'menu_representatives' => 'Temsilciler',
-    'menu_patients' => 'Hastalar',
     'menu_reports' => 'Raporlar',
+    'patients' => 'Hastalar',
+    'treatments' => 'Tedaviler',
+    'medication_plans' => 'İlaç Planları',
+    'photos' => 'Fotoğraflar',
+    'manage_patients' => 'Hastaları Yönet',
+    'manage_treatments' => 'Tedavileri Yönet',
+    'manage_medication_plans' => 'İlaç Planlarını Yönet',
+    'manage_photos' => 'Fotoğrafları Yönet',
 ]; 

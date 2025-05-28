@@ -155,4 +155,11 @@ return [
     'datetime_format' => 'd.m.Y H:i',
     'emergency_contact_deleted' => 'Acil durum kişisi başarıyla silindi.',
     'emergency_contact_delete_error' => 'Acil durum kişisi silinirken bir hata oluştu.',
+
+    'general' => [
+        'view' => 'Görüntüle',
+        'edit' => 'Düzenle',
+        'delete' => 'Sil',
+        'actions' => 'İşlemler',
+    ],
 ]; 

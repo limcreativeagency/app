@@ -18,7 +18,17 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next)
     {
-        $locale = session('locale', config('app.locale'));
+        // Session'da dil ayarı yoksa tarayıcı dilini kontrol et
+        if (!session()->has('locale')) {
+            $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
+            if (in_array($browserLocale, ['tr', 'en'])) {
+                session(['locale' => $browserLocale]);
+            } else {
+                session(['locale' => config('app.locale', 'tr')]);
+            }
+        }
+        
+        $locale = session('locale');
         
         // Desteklenen dilleri kontrol et
         if (!in_array($locale, ['tr', 'en'])) {

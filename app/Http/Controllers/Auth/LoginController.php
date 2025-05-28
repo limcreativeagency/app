@@ -62,7 +62,7 @@ class LoginController extends Controller
 
         auth()->login($user, $request->filled('remember'));
         $request->session()->regenerate();
-        return $this->authenticated($request, $user) ?: redirect()->intended($this->redirectPath());
+        return $this->authenticated($request, $user);
     }
 
     public function logout(Request $request)
@@ -88,6 +88,8 @@ class LoginController extends Controller
             case 1:
                 return redirect('/admin');
             case 2:
+            case 3:
+            case 4:
                 return redirect('/clinic/dashboard');
             default:
                 return redirect('/dashboard');

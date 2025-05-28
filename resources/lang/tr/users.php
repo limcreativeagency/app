@@ -10,4 +10,7 @@ return [
     'password_confirm' => 'Şifre Tekrar',
     'list_title' => ':role Listesi',
     'no_records' => 'Kayıt bulunamadı.',
+    'created_success' => ':role başarıyla oluşturuldu.',
+    'updated_success' => ':role başarıyla güncellendi.',
+    'deleted_success' => ':role başarıyla silindi.',
 ]; 

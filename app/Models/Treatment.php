@@ -13,18 +13,23 @@ class Treatment extends Model
 
     protected $fillable = [
         'patient_id',
-        'doctor_id',
+        'user_id',
         'title',
         'description',
         'start_date',
         'end_date',
         'status',
-        'notes'
+        'treatment_type',
+        'treatment_area',
+        'graft_count',
+        'operation_date',
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
-        'end_date' => 'datetime'
+        'end_date' => 'datetime',
+        'treatment_area' => 'array',
+        'operation_date' => 'date',
     ];
 
     public function patient(): BelongsTo
@@ -32,9 +37,9 @@ class Treatment extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function doctor(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function stages(): HasMany
@@ -42,8 +47,26 @@ class Treatment extends Model
         return $this->hasMany(TreatmentStage::class);
     }
 
-    public function photos(): HasMany
+    public function photos()
     {
-        return $this->hasMany(TreatmentPhoto::class);
+        return $this->hasMany(\App\Models\TreatmentPhoto::class, 'treatment_id')->orderBy('created_at', 'desc');
+    }
+
+    public function medicationPlans()
+    {
+        return $this->hasMany(\App\Models\MedicationPlan::class);
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(TreatmentNote::class);
+    }
+
+    public function getVisibleNotes()
+    {
+        if (auth()->user()->hasRole('patient')) {
+            return $this->notes()->visibleToPatient()->with(['user'])->get();
+        }
+        return $this->notes()->with(['user'])->get();
     }
 }

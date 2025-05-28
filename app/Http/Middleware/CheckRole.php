@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, $roles)
     {
-        if (!auth()->check() || auth()->user()->role_id != $role) {
+        $roleArray = explode(',', $roles);
+        if (!auth()->check() || !in_array(auth()->user()->role_id, $roleArray)) {
             abort(403, 'Yetkisiz erişim.');
         }
-
         return $next($request);
     }
 } 

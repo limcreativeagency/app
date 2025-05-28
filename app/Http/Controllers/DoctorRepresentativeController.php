@@ -19,25 +19,25 @@ class DoctorRepresentativeController extends Controller
         });
     }
 
-    public function index(Request $request, $role)
+    public function index(Request $request, $type)
     {
         $user = Auth::user();
-        $roleId = Role::where('slug', $role)->value('id');
+        $roleId = Role::where('slug', $type)->value('id');
         $users = User::where('role_id', $roleId)
             ->where('hospital_id', $user->hospital_id)
             ->get();
-        return view('users.index', compact('users', 'role'));
+        return view('users.index', compact('users', 'type'));
     }
 
-    public function create($role)
+    public function create($type)
     {
-        return view('users.create', compact('role'));
+        return view('users.create', compact('type'));
     }
 
-    public function store(Request $request, $role)
+    public function store(Request $request, $type)
     {
         $user = Auth::user();
-        $roleId = Role::where('slug', $role)->value('id');
+        $roleId = Role::where('slug', $type)->value('id');
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users',
@@ -48,16 +48,16 @@ class DoctorRepresentativeController extends Controller
         $validated['hospital_id'] = $user->hospital_id;
         $validated['role_id'] = $roleId;
         User::create($validated);
-        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' başarıyla eklendi.');
+        return redirect()->route('users.index.' . $type)->with('success', ucfirst($type).' başarıyla eklendi.');
     }
 
-    public function edit($role, User $user)
+    public function edit($type, User $user)
     {
         $this->authorizeUser($user);
-        return view('users.edit', compact('user', 'role'));
+        return view('users.edit', compact('user', 'type'));
     }
 
-    public function update(Request $request, $role, User $user)
+    public function update(Request $request, $type, User $user)
     {
         $this->authorizeUser($user);
         $validated = $request->validate([
@@ -72,14 +72,14 @@ class DoctorRepresentativeController extends Controller
             unset($validated['password']);
         }
         $user->update($validated);
-        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' güncellendi.');
+        return redirect()->route('users.index.' . $type)->with('success', ucfirst($type).' güncellendi.');
     }
 
-    public function destroy($role, User $user)
+    public function destroy($type, User $user)
     {
         $this->authorizeUser($user);
         $user->delete();
-        return redirect()->route('users.index.' . $role)->with('success', ucfirst($role).' silindi.');
+        return redirect()->route('users.index.' . $type)->with('success', ucfirst($type).' silindi.');
     }
 
     private function authorizeUser(User $user)

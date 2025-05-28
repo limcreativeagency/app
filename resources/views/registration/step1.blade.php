@@ -67,7 +67,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">{{ __('register_step1.website') }}</label>
-                                <input type="text" name="website" class="form-control" value="{{ session('clinic_step1.website') }}">
+                                <input type="text" name="website" class="form-control" value="{{ old('website', session('clinic_step1.website')) }}">
                                 @error('website')<div class="text-danger small">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12">

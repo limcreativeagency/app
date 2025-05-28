@@ -84,6 +84,11 @@ class Patient extends Model
         return $this->hasMany(EmergencyContact::class);
     }
 
+    public function treatments()
+    {
+        return $this->hasMany(\App\Models\Treatment::class, 'patient_id');
+    }
+
     // BMI calculation
     public function getBmiAttribute()
     {

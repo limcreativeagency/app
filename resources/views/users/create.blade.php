@@ -2,18 +2,25 @@
 
 @section('content')
 <div class="container py-4">
-    <h2>{{ __('users.create_title', ['role' => ucfirst($role)]) }}</h2>
+    <h2>{{ __('users.create_title', ['role' => ucfirst($type)]) }}</h2>
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="{{ route('users.store', $role) }}">
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('users.store', $type) }}">
                 @csrf
-                
-                @if ($role === 'doctor')
+                @if ($type === 'doctor')
                     <input type="hidden" name="role_id" value="3">
-                @elseif ($role === 'representative')
+                @elseif ($type === 'representative')
                     <input type="hidden" name="role_id" value="4">
                 @endif
-                
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label" for="name">{{ __('users.name') }}</label>
@@ -44,7 +51,7 @@
                     <input type="password" name="password_confirmation" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-success">{{ __('general.save') }}</button>
-                <a href="{{ route('users.index.' . $role) }}" class="btn btn-secondary">{{ __('general.cancel') }}</a>
+                <a href="{{ route('users.index.' . $type) }}" class="btn btn-secondary">{{ __('general.cancel') }}</a>
             </form>
         </div>
     </div>

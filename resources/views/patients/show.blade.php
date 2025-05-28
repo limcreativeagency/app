@@ -50,18 +50,19 @@
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card shadow-sm">
+            <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>{{ __('patients.patient_details') }}</h5>
-                    <div>
-                        <a href="{{ route('patients.edit', $patient) }}" class="btn btn-warning btn-sm me-2">
-                            <i class="bi bi-pencil"></i> {{ __('general.edit') }}
+                    <h5 class="card-title m-0">{{ __('patients.patient_details') }}</h5>
+                    <div class="btn-group">
+                        <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-pencil"></i> Düzenle
                         </a>
-                        <a href="{{ route('patients.index') }}" class="btn btn-light btn-sm">
-                            <i class="bi bi-arrow-left"></i> {{ __('general.back') }}
+                        <a href="{{ route('patients.index') }}" class="btn btn-secondary btn-sm ms-2">
+                            <i class="bi bi-arrow-left"></i> Geri
                         </a>
                     </div>
                 </div>
+
                 <div class="card-body">
                     <!-- Tab Menüsü -->
                     <ul class="nav nav-tabs" id="patientTabs" role="tablist">
@@ -305,6 +306,27 @@
                                         </td>
                                     </tr>
                                     <tr>
+                                        <th>{{ __('patients.medications_used') }}</th>
+                                        <td>
+                                            @php
+                                                $medications = $patient->medications_used;
+                                                if (is_string($medications)) {
+                                                    $decoded = json_decode($medications, true);
+                                                    $medications = $decoded !== null ? $decoded : $medications;
+                                                }
+                                            @endphp
+                                            @if(!empty($medications) && is_array($medications))
+                                                @foreach($medications as $medication)
+                                                    <span class="badge bg-success text-light">{{ is_array($medication) && isset($medication['value']) ? $medication['value'] : $medication }}</span>
+                                                @endforeach
+                                            @elseif(!empty($medications))
+                                                <span class="badge bg-success text-light">{{ $medications }}</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th>{{ __('patients.dietary_habits') }}</th>
                                         <td>{{ $patient->dietary_habits ?: '-' }}</td>
                                     </tr>
@@ -312,27 +334,68 @@
                             </div>
                         </div>
 
-                        <!-- Tedaviler ve İlaçlar -->
+                        <!-- Tedaviler -->
                         <div class="tab-pane fade" id="treatments" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0">Tedaviler</h5>
+                                <a href="{{ route('treatments.create', ['patient_id' => $patient->id]) }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus"></i> Yeni Tedavi Ekle
+                                </a>
+                            </div>
+                            
                             <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <th style="width: 30%">{{ __('patients.medications_used') }}</th>
-                                        <td>
-                                            @if($patient->medications_used)
-                                                @foreach($patient->medications_used as $medication)
-                                                    <span class="badge bg-info">{{ $medication }}</span>
-                                                @endforeach
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Tedavi Adı</th>
+                                            <th>Başlangıç</th>
+                                            <th>Bitiş</th>
+                                            <th>Durum</th>
+                                            <th>İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse(($patient->treatments ?? []) as $treatment)
+                                        <tr>
+                                            <td>{{ $treatment->title }}</td>
+                                            <td>{{ $treatment->start_date->format('d.m.Y') }}</td>
+                                            <td>{{ $treatment->end_date ? $treatment->end_date->format('d.m.Y') : '-' }}</td>
+                                            <td>
+                                                @switch($treatment->status)
+                                                    @case('planned')
+                                                        <span class="badge bg-info">Planlandı</span>
+                                                        @break
+                                                    @case('in_progress')
+                                                        <span class="badge bg-primary">Devam Ediyor</span>
+                                                        @break
+                                                    @case('completed')
+                                                        <span class="badge bg-success">Tamamlandı</span>
+                                                        @break
+                                                    @case('cancelled')
+                                                        <span class="badge bg-danger">İptal Edildi</span>
+                                                        @break
+                                                @endswitch
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ route('treatments.show', $treatment->id) }}" class="btn btn-info">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('treatments.edit', $treatment->id) }}" class="btn btn-primary">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <p class="text-muted mb-0">Henüz tedavi kaydı bulunmamaktadır.</p>
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
                                 </table>
-                                <div class="alert alert-info mt-3">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    Tedavi ve ilaç kayıtları yakında eklenecektir.
-                                </div>
                             </div>
                         </div>
 
@@ -381,9 +444,11 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')
+{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Bootstrap tabs
@@ -411,12 +476,7 @@
         var tabs = document.querySelectorAll('#patientTabs button');
         tabs.forEach(function(tab) {
             tab.addEventListener('shown.bs.tab', function(event) {
-                var targetId = event.target.getAttribute('data-bs-target');
-                if (history.pushState) {
-                    history.pushState(null, null, targetId);
-                } else {
-                    window.location.hash = targetId;
-                }
+                window.location.hash = event.target.getAttribute('data-bs-target');
             });
         });
     });

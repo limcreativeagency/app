@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Treatment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -42,37 +44,42 @@ class PatientController extends Controller
                 'medications_used' => $medicationsUsed
             ]);
 
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'phone' => 'required|string|max:20|unique:users',
-                'identity_number' => 'nullable|string|max:11|unique:patients,identity_number',
-                'birth_date' => 'nullable|date',
-                'gender' => 'nullable|in:male,female,other',
-                'address' => 'nullable|string',
-                'city' => 'nullable|string|max:100',
-                'country' => 'nullable|string|max:100',
-                'postal_code' => 'nullable|string|max:20',
-                'medical_history' => 'nullable|string',
-                'blood_type' => 'nullable|string|max:10',
-                'profile_photo' => 'nullable|string',
-                'notes' => 'nullable|string',
-                'height' => 'nullable|integer|min:1|max:300',
-                'weight' => 'nullable|integer|min:1|max:500',
-                'smoking_status' => 'nullable|in:never,former,current',
-                'alcohol_consumption' => 'nullable|in:never,occasional,regular,former',
-                'exercise_status' => 'nullable|in:none,occasional,regular',
-                'dietary_habits' => 'nullable|string',
-                'occupation' => 'nullable|string|max:100',
-                'marital_status' => 'nullable|in:single,married,divorced,widowed',
-                'allergies' => 'nullable',
-                'chronic_diseases' => 'nullable',
-                'medications_used' => 'nullable',
-                'emergency_contacts' => 'nullable|array',
-                'emergency_contacts.*.name' => 'nullable|string|max:255',
-                'emergency_contacts.*.phone' => 'nullable|string|max:20',
-                'emergency_contacts.*.relation' => 'nullable|string|max:50'
-            ]);
+            try {
+                $validated = $request->validate([
+                    'name' => 'required|string|max:255',
+                    'email' => 'required|string|email|max:255|unique:users',
+                    'phone' => 'required|string|max:20|unique:users',
+                    'identity_number' => 'nullable|string|max:11|unique:patients,identity_number',
+                    'birth_date' => 'nullable|date',
+                    'gender' => 'nullable|in:male,female,other',
+                    'address' => 'nullable|string',
+                    'city' => 'nullable|string|max:100',
+                    'country' => 'nullable|string|max:100',
+                    'postal_code' => 'nullable|string|max:20',
+                    'medical_history' => 'nullable|string',
+                    'blood_type' => 'nullable|string|max:10',
+                    'profile_photo' => 'nullable|string',
+                    'notes' => 'nullable|string',
+                    'height' => 'nullable|integer|min:1|max:300',
+                    'weight' => 'nullable|integer|min:1|max:500',
+                    'smoking_status' => 'nullable|in:never,former,current',
+                    'alcohol_consumption' => 'nullable|in:never,occasional,regular,former',
+                    'exercise_status' => 'nullable|in:none,occasional,regular',
+                    'dietary_habits' => 'nullable|string',
+                    'occupation' => 'nullable|string|max:100',
+                    'marital_status' => 'nullable|in:single,married,divorced,widowed',
+                    'allergies' => 'nullable',
+                    'chronic_diseases' => 'nullable',
+                    'medications_used' => 'nullable',
+                    'emergency_contacts' => 'nullable|array',
+                    'emergency_contacts.*.name' => 'nullable|string|max:255',
+                    'emergency_contacts.*.phone' => 'nullable|string|max:20',
+                    'emergency_contacts.*.relation' => 'nullable|string|max:50'
+                ]);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                \Log::error('Validasyon hataları:', $e->errors());
+                throw $e;
+            }
 
             \Log::info('Validasyon başarılı');
 
@@ -150,8 +157,8 @@ class PatientController extends Controller
             DB::commit();
             \Log::info('İşlem başarıyla tamamlandı');
 
-            return redirect()->route('patients.verify', $user->id)
-                ->with('success', 'Hasta kaydı oluşturuldu. Lütfen telefon numaranızı doğrulayın.');
+            return redirect()->route('patients.index')
+                ->with('success', 'Hasta kaydı başarıyla oluşturuldu.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -159,13 +166,13 @@ class PatientController extends Controller
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return back()
                 ->withInput()
-                ->with('error', 'Hasta kaydı oluşturulurken bir hata oluştu: ' . $e->getMessage());
+                ->withErrors($e instanceof \Illuminate\Validation\ValidationException ? $e->errors() : ['error' => $e->getMessage()]);
         }
     }
 
     public function show(Patient $patient)
     {
-        $patient->load(['user', 'emergencyContacts']);
+        $patient->load(['user', 'emergencyContacts', 'treatments']);
         return view('patients.show', compact('patient'));
     }
 
@@ -284,9 +291,20 @@ class PatientController extends Controller
     public function showVerification($userId)
     {
         $verification = Session::get('patient_verification');
+        
+        // Eğer doğrulama bilgisi yoksa veya süresi dolmuşsa yeni doğrulama kodu oluştur
         if (!$verification || $verification['user_id'] != $userId || now()->isAfter($verification['expires_at'])) {
-            return redirect()->route('patients.index')
-                ->with('error', 'Doğrulama süresi doldu veya geçersiz doğrulama.');
+            $user = User::findOrFail($userId);
+            $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            
+            Session::put('patient_verification', [
+                'user_id' => $userId,
+                'code' => $verificationCode,
+                'expires_at' => now()->addHours(24)
+            ]);
+
+            // Burada SMS gönderimi yapılabilir
+            \Log::info('Yeni doğrulama kodu oluşturuldu', ['user_id' => $userId, 'code' => $verificationCode]);
         }
 
         return view('patients.verify', compact('userId'));
@@ -322,7 +340,29 @@ class PatientController extends Controller
 
     public function treatments()
     {
-        return view('patients.treatments');
+        $query = Treatment::with(['patient.user.role', 'stages', 'photos', 'user.role']);
+
+        // Eğer kullanıcı doktor ise, sadece kendi tedavilerini göster
+        if (auth()->user()->hasRole('doctor')) {
+            $query->where('user_id', auth()->id());
+        }
+        // Eğer kullanıcı hasta ise, sadece kendi tedavilerini göster
+        elseif (auth()->user()->hasRole('patient')) {
+            $query->where('patient_id', auth()->user()->patient->id);
+        }
+        // Admin veya diğer roller için tüm tedavileri göster
+        
+        $treatments = $query->latest()->paginate(10);
+
+        // İstatistikler için sayıları hesapla
+        $stats = [
+            'total' => $treatments->total(),
+            'completed' => $query->where('status', 'completed')->count(),
+            'in_progress' => $query->where('status', 'in_progress')->count(),
+            'planned' => $query->where('status', 'planned')->count()
+        ];
+
+        return view('patients.treatments', compact('treatments', 'stats'));
     }
 
     /**

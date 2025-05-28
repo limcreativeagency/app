@@ -3,8 +3,8 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">{{ __('users.list_title', ['role' => __('general.roles.' . $role)]) }}</h2>
-        <a href="{{ route('users.create', $role) }}" class="btn btn-primary">{{ __('users.create_title', ['role' => __('general.roles.' . $role)]) }}</a>
+        <h2 class="mb-0">{{ __('users.list_title', ['role' => __('general.roles.' . $type)]) }}</h2>
+        <a href="{{ route('users.create', $type) }}" class="btn btn-primary">{{ __('users.create_title', ['role' => __('general.roles.' . $type)]) }}</a>
     </div>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -17,7 +17,7 @@
                         <th>{{ __('users.name') }}</th>
                         <th>{{ __('users.email') }}</th>
                         <th>{{ __('users.phone') }}</th>
-                        <th>{{ __('general.general.actions') }}</th>
+                        <th>{{ __('general.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,11 +27,11 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->phone }}</td>
                         <td>
-                            <a href="{{ route('users.edit', [$role, $user->id]) }}" class="btn btn-sm btn-warning">{{ __('general.general.edit') }}</a>
-                            <form action="{{ route('users.destroy', [$role, $user->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                            <a href="{{ route('users.edit', [$type, $user->id]) }}" class="btn btn-sm btn-warning">{{ __('general.edit') }}</a>
+                            <form action="{{ route('users.destroy', [$type, $user->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">{{ __('general.general.delete') }}</button>
+                                <button type="submit" class="btn btn-sm btn-danger">{{ __('general.delete') }}</button>
                             </form>
                         </td>
                     </tr>
